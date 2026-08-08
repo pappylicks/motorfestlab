@@ -7,23 +7,42 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const LEGEND_SETS = [
-  { id: 'nitro_chemist', name: 'Nitro Chemist', multiplier: '2x Nitro Duration', category: 'General' },
-  { id: 'score_breaker', name: 'Score Breaker', multiplier: '2x Skill Points', category: 'Feats' },
-  { id: 'fame_magnet', name: 'Fame Magnet', multiplier: '2x Follower Points', category: 'Progression' },
-  { id: 'loot_digger', name: 'Loot Digger', multiplier: '2x Part Drops', category: 'Farming' },
-  { id: 'clean_driver', name: 'Clean Driver', multiplier: '2x Clean Driving Points', category: 'Feats' }
-];
-
-const AFFIXES = [
-  { id: 'pure', name: 'Pure (Nitro Power)', maxPerPart: 3.5, unit: '%' },
-  { id: 'extra_pump', name: 'Extra Pump (Nitro Refill)', maxPerPart: 5.0, unit: '%' },
-  { id: 'frenetic', name: 'Frenetic (Nitro Acceleration)', maxPerPart: 4.0, unit: '%' },
-  { id: 'ventilated', name: 'Ventilated (Nitro Cooldown)', maxPerPart: 4.5, unit: '%' },
-  { id: 'resourceful', name: 'Resourceful (Slipstream Refill)', maxPerPart: 6.0, unit: '%' },
-  { id: 'slippery', name: 'Slippery (Drift Score/Multiplier)', maxPerPart: 5.0, unit: '%' },
-  { id: 'gold_digger', name: 'Gold Digger (Bucks Booster)', maxPerPart: 3.0, unit: '%' }
-];
+// Grand Race Meta Vehicles Directory & Class Recommendations
+const GRAND_RACE_META_DB = {
+  "Hypercar": [
+    { name: "Pagani Imola", type: "Technical / Cornering Meta", description: "Unmatched grip and downforce through sharp chicanes; dominates technical Grand Race layouts." },
+    { name: "Bugatti Chiron SS 300+", type: "Top Speed King", description: "Essential for long highway and straight-line slipstream corridors (490+ km/h V-Max)." },
+    { name: "Gordon Murray Automotive T.50", type: "High-RPM Slipstream", description: "Incredible power-to-weight ratio with a high-revving V12 engine that thrives in drafting packs." },
+    { name: "Koenigsegg Agera R / Jesko", type: "All-Rounder", description: "Solid balance of raw top-end speed and predictable chassis stability." }
+  ],
+  "Street Tier 2": [
+    { name: "Ferrari F40 / F50", type: "Handling & Gutter Meta", description: "Top-tier rotation and gutter-riding capabilities through tight turns." },
+    { name: "Lamborghini Huracán LP610-4", type: "AWD Traction / Sprint", description: "Stupidly fast off-the-line launch and rock-solid wet weather stability." },
+    { name: "Nissan Skyline GT-R (R34)", type: "Technical Cornering", description: "AWD traction makes it almost impossible to lose traction on technical street circuits." }
+  ],
+  "Street Tier 1": [
+    { name: "Porsche 911 Carrera RS 2.7", type: "Overall Class Meta", description: "Exceptional power-to-weight balance and high cornering speeds." },
+    { name: "Volkswagen Golf GTI 1800", type: "Agility & Acceleration", description: "Nimble hatchback chassis ideal for dodging chaos and navigating hairpins." },
+    { name: "Mazda MX-5 Miata NA / RX-7", type: "Handling / Technical", description: "High corner-entry speed with ultra-responsive steering response." }
+  ],
+  "Racing": [
+    { name: "Gordon Murray T.50s", type: "Top Speed & Acceleration", description: "Extreme V12 track variant that pulls away on every straightaway." },
+    { name: "Ferrari 458 Italia GT2", type: "Cornering Precision", description: "Smooth aerodynamic downforce platform for high-speed sweepers." },
+    { name: "Lamborghini Gallardo Super Trofeo", type: "AWD Track Grip", description: "Consistent, error-forgiving handling during crowded Grand Race starts." }
+  ],
+  "Alpha GP": [
+    { name: "Red Bull RB14 / RB18", type: "Maximum Downforce Meta", description: "Peak cornering G-forces and instant directional changes." },
+    { name: "IVT Alpha Mark II", type: "All-Rounder", description: "Stable high-speed platform with high predictability on fast sweepers." }
+  ],
+  "Drift": [
+    { name: "Hoonigan Ford Mustang Hoonicorn", type: "High-Score / Feat Meta", description: "Massive horsepower output for holding long, high-angle slides." },
+    { name: "Mazda RX-7 Drift Edition", type: "Agile Rotation", description: "Nimble chassis for tight, technical drift sections and Summit feats." }
+  ],
+  "Rally / Rally Raid": [
+    { name: "Porsche 959 Dakar / Raid", type: "Rough Terrain Stability", description: "Absorbs jumps and heavy off-road bumps without bouncing off-track." },
+    { name: "Toyota Tacoma / Peugeot 205", type: "Acceleration & Dirt Grip", description: "High dirt traction off corner exits on dirt/gravel surfaces." }
+  ]
+};
 
 // Seed Database for Explicit Meta Presets
 const INDEPENDENT_CAR_DB = {
@@ -40,7 +59,7 @@ const INDEPENDENT_CAR_DB = {
       steeringSensitivity: "+3 notches",
       tractionControl: "OFF", abs: "ON"
     },
-    metaTips: "High-revving V12 mid-engine layout. Mid-engine rear stability requires Front ARB at +10% and Rear at -10% to prevent snapshot oversteer under high-speed trail braking."
+    metaTips: "High-revving V12 mid-engine setup. Mid-engine rear stability requires Front ARB at +10% and Rear at -10% to prevent snapshot oversteer under trail braking."
   },
   "porsche 911 gt3 rs": {
     drivetrain: "RWD",
@@ -55,7 +74,7 @@ const INDEPENDENT_CAR_DB = {
       steeringSensitivity: "+4 notches",
       tractionControl: "OFF", abs: "ON"
     },
-    metaTips: "Rear-engine weight bias causes off-throttle understeer. Offsetting Rear ARB to +25% forces the rear pendulum to rotate the car into apexes cleanly."
+    metaTips: "Rear-engine weight bias causes off-throttle understeer. Offsetting Rear ARB to +25% forces the rear end to rotate cleanly into apexes."
   },
   "nissan skyline gt-r (r34)": {
     drivetrain: "AWD",
@@ -70,11 +89,11 @@ const INDEPENDENT_CAR_DB = {
       steeringSensitivity: "+3 notches",
       tractionControl: "OFF", abs: "ON"
     },
-    metaTips: "Front-heavy ATTESA AWD setup natively understeers. Softening Front ARB to -20% and hardening Rear ARB to +30% unlocks sharp corner-entry rotation."
+    metaTips: "Front-heavy AWD system natively understeers. Softening Front ARB to -20% and hardening Rear ARB to +30% unlocks sharp corner-entry rotation."
   }
 };
 
-// Dynamic Car Property Analyzer for any custom vehicle typed by the user
+// Dynamic Vehicle Physics Algorithm
 function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, category) {
   const carKey = carNameInput.toLowerCase().trim();
 
@@ -101,11 +120,10 @@ function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, c
   let gears = "0%";
   let steer = "+3 notches";
 
-  // Drivetrain Bias Logic
   if (drivetrain === "FWD") {
     arbF = -25; arbR = +35;
     springF = -15; springR = +25;
-    brakeBias = 44; // Rear biased to rotate FWD
+    brakeBias = 44;
   } else if (drivetrain === "AWD") {
     arbF = -15; arbR = +20;
     springF = -5; springR = +10;
@@ -116,13 +134,12 @@ function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, c
     brakeBias = 49;
   }
 
-  // Engine Placement Physics Adjustments
   if (engineLayout === "Rear-Engine") {
-    arbF -= 10; arbR += 15; // Fight front push from light nose
+    arbF -= 10; arbR += 15;
     springR += 15;
     brakeBias -= 3;
   } else if (engineLayout === "Mid-Engine") {
-    arbF += 5; arbR -= 10; // Tame mid-engine snap oversteer
+    arbF += 5; arbR -= 10;
     springF += 10;
     gears = "+5% (Speed)";
   } else { // Front-Engine
@@ -130,7 +147,6 @@ function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, c
     springF -= 5;
   }
 
-  // Category Fine-Tuning Overlay
   const catLower = category.toLowerCase();
   if (catLower.includes("hypercar")) {
     aero = "-15% (-3 notches)";
@@ -164,21 +180,12 @@ function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, c
       tractionControl: "OFF",
       abs: "ON"
     },
-    metaTips: `Custom calculated setup for a ${drivetrain} ${engineLayout} vehicle in the ${category} class. ARBs configured to balance weight distribution.`,
+    metaTips: `Custom calculated setup for a ${drivetrain} ${engineLayout} vehicle in the ${category} class. ARBs balanced specifically for weight distribution.`,
     isExplicitMatch: false
   };
 }
 
-let savedBuilds = [];
-
-app.get('/api/metadata', (req, res) => {
-  res.json({ legendSets: LEGEND_SETS, affixes: AFFIXES });
-});
-
-app.get('/api/builds', (req, res) => {
-  res.json(savedBuilds);
-});
-
+// API Endpoints
 app.get('/api/pro-settings', (req, res) => {
   const carName = req.query.car || 'Gordon Murray Automotive T.50';
   const drivetrain = req.query.drivetrain || 'RWD';
@@ -189,29 +196,8 @@ app.get('/api/pro-settings', (req, res) => {
   res.json({ data: result });
 });
 
-app.post('/api/builds', (req, res) => {
-  const { carName, category, legendSet, affixes, notes } = req.body;
-  if (!carName || !category) {
-    return res.status(400).json({ error: 'Car Name and Category are required.' });
-  }
-
-  const newBuild = {
-    id: Date.now(),
-    carName,
-    category,
-    legendSet: legendSet || 'None',
-    affixes: affixes || {},
-    notes: notes || ''
-  };
-
-  savedBuilds.push(newBuild);
-  res.status(201).json(newBuild);
-});
-
-app.delete('/api/builds/:id', (req, res) => {
-  const buildId = parseInt(req.params.id, 10);
-  savedBuilds = savedBuilds.filter(b => b.id !== buildId);
-  res.json({ success: true, message: 'Build deleted successfully.' });
+app.get('/api/grand-race-meta', (req, res) => {
+  res.json(GRAND_RACE_META_DB);
 });
 
 app.listen(PORT, () => {
