@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motorfest Build Lab & Universal Pro Settings</title>
+  <title>Motorfest Build Lab & Slider Pro Settings</title>
   <style>
     :root {
       --bg: #0d0f12;
@@ -11,6 +11,7 @@
       --border: #2a313d;
       --accent: #ff0055;
       --accent-gold: #ffb700;
+      --accent-cyan: #00f0ff;
       --text: #f0f4f8;
       --text-muted: #8c9ba5;
     }
@@ -105,7 +106,7 @@
 
     button:hover { opacity: 0.9; }
 
-    /* Universal Pro Settings Card Box */
+    /* Slider Bar Specific Styles */
     .pro-box {
       background: #11141a;
       border: 1px solid #333d4d;
@@ -114,32 +115,24 @@
       border-radius: 6px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .pro-title {
-      font-size: 0.95rem;
-      font-weight: bold;
-      color: var(--accent-gold);
+    .slider-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
-    .pro-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      font-size: 0.8rem;
-      margin-top: 4px;
-    }
-
-    .pro-item span {
-      color: var(--text-muted);
-      display: block;
-    }
-
-    .pro-item strong {
-      color: var(--text);
+    .slider-row span { color: var(--text-muted); }
+    .slider-val {
+      font-weight: bold;
+      color: var(--accent-cyan);
+      font-family: monospace;
+      font-size: 0.88rem;
     }
 
     .build-list { display: flex; flex-direction: column; gap: 12px; }
@@ -175,20 +168,20 @@
   <header>
     <div>
       <h1>Motorfest Build Lab</h1>
-      <div class="subtitle">Universal Vehicle Meta & Pro Settings Engine</div>
+      <div class="subtitle">Exact Percentage Slider Bars & Pro Settings</div>
     </div>
-    <div class="stat-badge">All Vehicles Supported</div>
+    <div class="stat-badge">In-Game Slider Matcher</div>
   </header>
 
   <div class="grid">
     
-    <!-- LEFT: BUILD OPTIMIZER & UNIVERSAL PRO SETTINGS -->
+    <!-- LEFT: BUILD OPTIMIZER & SLIDER BARS -->
     <div class="card">
       <div class="card-title">Configure Vehicle Setup</div>
 
       <div class="form-group">
-        <label>Vehicle Name (Any Car / Bike / Spec)</label>
-        <input type="text" id="carName" placeholder="Type any car (e.g. Porsche 911 GT3 RS, Koenigsegg Jesko, Supra...)" oninput="fetchProSettings()" />
+        <label>Vehicle Name</label>
+        <input type="text" id="carName" placeholder="e.g. Gordon Murray Automotive T.50" oninput="fetchProSettings()" />
       </div>
 
       <div class="form-group">
@@ -201,29 +194,32 @@
           <option value="Drift">Drift</option>
           <option value="Alpha GP">Alpha GP</option>
           <option value="Rally Raid">Rally Raid / Off-Road</option>
-          <option value="Rally">Rally</option>
-          <option value="Dragster">Dragster</option>
         </select>
       </div>
 
-      <!-- UNIVERSAL PRO SETTINGS CARD -->
+      <!-- IN-GAME PRO SETTINGS SLIDERS CARD -->
       <div class="pro-box">
-        <div class="pro-title">
-          <span id="proCarName">Selected Vehicle</span>
-          <span id="proBadge" style="font-size:0.75rem; color: var(--accent-gold);">[META VERIFIED]</span>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span id="proCarName" style="font-weight:bold; color:var(--accent-gold);">Gordon Murray Automotive T.50</span>
+          <span style="font-size:0.75rem; color:var(--accent-cyan);">[SLIDER CONFIG]</span>
         </div>
-        <div style="font-size:0.8rem; color:var(--text-muted);" id="proStyle">Grand Race Performance Setup</div>
+        <div style="font-size:0.8rem; color:var(--text-muted);" id="proStyle">Grand Race Hypercar V-Max Setup</div>
         
-        <div class="pro-grid">
-          <div class="pro-item"><span>Brake Balance:</span> <strong id="proBrake">--</strong></div>
-          <div class="pro-item"><span>Traction Control:</span> <strong id="proTC">--</strong></div>
-          <div class="pro-item"><span>Aero Downforce:</span> <strong id="proAero">--</strong></div>
-          <div class="pro-item"><span>Gear Ratio:</span> <strong id="proGears">--</strong></div>
-          <div class="pro-item"><span>Anti-Roll Bars:</span> <strong id="proARB">--</strong></div>
-          <div class="pro-item"><span>Steering Sensitivity:</span> <strong id="proSteer">--</strong></div>
+        <div style="display:flex; flex-direction:column; gap:2px; margin-top:4px;">
+          <div class="slider-row"><span>Front Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbFront">+10%</div></div>
+          <div class="slider-row"><span>Rear Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbRear">-10%</div></div>
+          <div class="slider-row"><span>Front Springs:</span> <div class="slider-val" id="barSpringFront">+15%</div></div>
+          <div class="slider-row"><span>Rear Springs:</span> <div class="slider-val" id="barSpringRear">0%</div></div>
+          <div class="slider-row"><span>Front Dampers:</span> <div class="slider-val" id="barDamperFront">+10%</div></div>
+          <div class="slider-row"><span>Rear Dampers:</span> <div class="slider-val" id="barDamperRear">-5%</div></div>
+          <div class="slider-row"><span>Aero Downforce:</span> <div class="slider-val" id="barAero">-15% (-3 notches)</div></div>
+          <div class="slider-row"><span>Brake Balance:</span> <div class="slider-val" id="barBrake">48% Front / 52% Rear</div></div>
+          <div class="slider-row"><span>Gear Ratio:</span> <div class="slider-val" id="barGears">+10% (Speed)</div></div>
+          <div class="slider-row"><span>Steering Sensitivity:</span> <div class="slider-val" id="barSteer">+3 notches</div></div>
+          <div class="slider-row"><span>Traction Control:</span> <div class="slider-val" id="barTC">OFF</div></div>
         </div>
 
-        <div style="font-size:0.78rem; color: var(--accent-gold); margin-top: 6px; border-top:1px dashed #222; padding-top:6px;" id="proTips">
+        <div style="font-size:0.78rem; color: var(--accent-gold); margin-top: 4px; border-top:1px dashed #222; padding-top:6px;" id="proTips">
           --
         </div>
       </div>
@@ -255,7 +251,7 @@
 
       <div class="form-group">
         <label>Personal Garage Notes</label>
-        <textarea id="notes" rows="2" placeholder="e.g. Excellent rotation through hairpins; top speed 420 km/h in slipstream"></textarea>
+        <textarea id="notes" rows="2" placeholder="e.g. Set ARB Front +10% and Rear -10% for Grand Race stability"></textarea>
       </div>
 
       <button onclick="saveBuild()">Save Vehicle Build</button>
@@ -291,16 +287,15 @@
 
       calculateStats();
       loadBuilds();
-      
-      // Default car setup on page load
-      document.getElementById('carName').value = 'Porsche 911 GT3 RS';
+
+      document.getElementById('carName').value = 'Gordon Murray Automotive T.50';
       fetchProSettings();
     }
 
     async function fetchProSettings() {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
-        const car = document.getElementById('carName').value || 'Selected Vehicle';
+        const car = document.getElementById('carName').value || 'Gordon Murray Automotive T.50';
         const category = document.getElementById('category').value;
 
         const res = await fetch(`/api/pro-settings?car=${encodeURIComponent(car)}&category=${encodeURIComponent(category)}`);
@@ -308,16 +303,19 @@
         const data = json.data;
 
         document.getElementById('proCarName').textContent = data.carName;
-        document.getElementById('proBadge').textContent = json.foundExact ? '[EXACT META MATCH]' : '[DYNAMIC CLASS META]';
-        document.getElementById('proBadge').style.color = json.foundExact ? 'var(--accent-gold)' : '#00f0ff';
         document.getElementById('proStyle').textContent = data.racingStyle;
 
-        document.getElementById('proBrake').textContent = data.settings.brakeBalance;
-        document.getElementById('proTC').textContent = data.settings.tractionControl;
-        document.getElementById('proAero').textContent = data.settings.aeroDownforce;
-        document.getElementById('proGears').textContent = data.settings.gearRatio;
-        document.getElementById('proARB').textContent = data.settings.arbFrontRear;
-        document.getElementById('proSteer').textContent = data.settings.steeringSensitivity;
+        document.getElementById('barArbFront').textContent = data.sliders.arbFront;
+        document.getElementById('barArbRear').textContent = data.sliders.arbRear;
+        document.getElementById('barSpringFront').textContent = data.sliders.springFront;
+        document.getElementById('barSpringRear').textContent = data.sliders.springRear;
+        document.getElementById('barDamperFront').textContent = data.sliders.damperFront;
+        document.getElementById('barDamperRear').textContent = data.sliders.damperRear;
+        document.getElementById('barAero').textContent = data.sliders.aeroDownforce;
+        document.getElementById('barBrake').textContent = data.sliders.brakeBalance;
+        document.getElementById('barGears').textContent = data.sliders.gearRatio;
+        document.getElementById('barSteer').textContent = data.sliders.steeringSensitivity;
+        document.getElementById('barTC').textContent = data.sliders.tractionControl;
 
         document.getElementById('proTips').textContent = `Pro Tip: ${data.metaTips}`;
       }, 200);
