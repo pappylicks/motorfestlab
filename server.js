@@ -11,12 +11,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 const GRAND_RACE_META_DB = {
   "Hypercar": [
     { name: "Pagani Imola", type: "Technical / Cornering Meta", description: "Unmatched grip and downforce through sharp chicanes; dominates technical Grand Race layouts." },
-    { name: "Bugatti Chiron SS 300+", type: "Top Speed King", description: "Essential for long highway and straight-line slipstream corridors (490+ km/h V-Max)." },
+    { name: "Bugatti Chiron SS 300+", type: "Top Speed King", description: "Essential for long highway and straight-line slipstream corridors (440+ km/h V-Max)." },
     { name: "Gordon Murray Automotive T.50", type: "High-RPM Slipstream", description: "Incredible power-to-weight ratio with a high-revving V12 engine that thrives in drafting packs." },
-    { name: "Koenigsegg Agera R / Jesko", type: "All-Rounder", description: "Solid balance of raw top-end speed and predictable chassis stability." }
+    { name: "Koenigsegg Agera R", type: "All-Rounder", description: "Solid balance of raw top-end speed and predictable chassis stability." }
   ],
   "Street Tier 2": [
-    { name: "Ferrari F40 / F50", type: "Handling & Gutter Meta", description: "Top-tier rotation and gutter-riding capabilities through tight turns." },
+    { name: "Ferrari F40 / F50", type: "Handling & Gutter Meta", description: "Top-tier rotation and gutter-riding capabilities through tight turns without losing momentum." },
     { name: "Lamborghini Huracán LP610-4", type: "AWD Traction / Sprint", description: "Stupidly fast off-the-line launch and rock-solid wet weather stability." },
     { name: "Nissan Skyline GT-R (R34)", type: "Technical Cornering", description: "AWD traction makes it almost impossible to lose traction on technical street circuits." }
   ],
@@ -27,20 +27,20 @@ const GRAND_RACE_META_DB = {
   ],
   "Racing": [
     { name: "Gordon Murray T.50s", type: "Top Speed & Acceleration", description: "Extreme V12 track variant that pulls away on every straightaway." },
-    { name: "Ferrari 458 Italia GT2", type: "Cornering Precision", description: "Smooth aerodynamic downforce platform for high-speed sweepers." },
+    { name: "Saleen S7R / Ferrari 458 GT2", type: "Cornering Precision", description: "Smooth aerodynamic downforce platform for high-speed sweepers." },
     { name: "Lamborghini Gallardo Super Trofeo", type: "AWD Track Grip", description: "Consistent, error-forgiving handling during crowded Grand Race starts." }
   ],
   "Alpha GP": [
     { name: "Red Bull RB14 / RB18", type: "Maximum Downforce Meta", description: "Peak cornering G-forces and instant directional changes." },
-    { name: "IVT Alpha Mark II", type: "All-Rounder", description: "Stable high-speed platform with high predictability on fast sweepers." }
+    { name: "Creators SM71 / IVT Alpha Mark II", type: "All-Rounder", description: "Stable high-speed platform with high predictability on fast sweepers." }
   ],
   "Drift": [
     { name: "Hoonigan Ford Mustang Hoonicorn", type: "High-Score / Feat Meta", description: "Massive horsepower output for holding long, high-angle slides." },
-    { name: "Mazda RX-7 Drift Edition", type: "Agile Rotation", description: "Nimble chassis for tight, technical drift sections and Summit feats." }
+    { name: "Koenigsegg Agera R Drift Edition", type: "Extreme Speed Drift", description: "High-speed drift capability for long, sweeping Summit zones." }
   ],
   "Rally / Rally Raid": [
-    { name: "Porsche 959 Dakar / Raid", type: "Rough Terrain Stability", description: "Absorbs jumps and heavy off-road bumps without bouncing off-track." },
-    { name: "Toyota Tacoma / Peugeot 205", type: "Acceleration & Dirt Grip", description: "High dirt traction off corner exits on dirt/gravel surfaces." }
+    { name: "Porsche 959 RAID", type: "Rough Terrain Stability", description: "Absorbs jumps and heavy off-road bumps without bouncing off-track." },
+    { name: "Citroën C3 Racing / Peugeot 205", type: "Acceleration & Dirt Grip", description: "High dirt traction off corner exits on dirt/gravel surfaces." }
   ]
 };
 
@@ -56,10 +56,9 @@ const INDEPENDENT_CAR_DB = {
       aeroDownforce: "-15% (-3 notches)",
       brakeBalance: "48% Front / 52% Rear",
       gearRatio: "+10% (Speed)",
-      steeringSensitivity: "+3 notches",
-      tractionControl: "OFF", abs: "ON"
+      steeringSensitivity: "+3 notches"
     },
-    metaTips: "High-revving V12 mid-engine setup. Mid-engine rear stability requires Front ARB at +10% and Rear at -10% to prevent snapshot oversteer under trail braking."
+    metaTips: "Mid-engine V12 layout requires Front ARB at +10% and Rear at -10% to prevent snapshot oversteer under trail braking. Hold gears manually near redline."
   },
   "porsche 911 gt3 rs": {
     drivetrain: "RWD",
@@ -71,10 +70,9 @@ const INDEPENDENT_CAR_DB = {
       aeroDownforce: "+20% (+4 notches)",
       brakeBalance: "45% Front / 55% Rear",
       gearRatio: "+5% (Speed)",
-      steeringSensitivity: "+4 notches",
-      tractionControl: "OFF", abs: "ON"
+      steeringSensitivity: "+4 notches"
     },
-    metaTips: "Rear-engine weight bias causes off-throttle understeer. Offsetting Rear ARB to +25% forces the rear end to rotate cleanly into apexes."
+    metaTips: "Rear-engine weight pendulum causes off-throttle understeer. Offsetting Rear ARB to +25% forces the rear end to rotate cleanly into apexes."
   },
   "nissan skyline gt-r (r34)": {
     drivetrain: "AWD",
@@ -86,8 +84,7 @@ const INDEPENDENT_CAR_DB = {
       aeroDownforce: "0% (0 notches)",
       brakeBalance: "46% Front / 54% Rear",
       gearRatio: "-5% (Acceleration)",
-      steeringSensitivity: "+3 notches",
-      tractionControl: "OFF", abs: "ON"
+      steeringSensitivity: "+3 notches"
     },
     metaTips: "Front-heavy AWD system natively understeers. Softening Front ARB to -20% and hardening Rear ARB to +30% unlocks sharp corner-entry rotation."
   }
@@ -97,7 +94,15 @@ const INDEPENDENT_CAR_DB = {
 function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, category) {
   const carKey = carNameInput.toLowerCase().trim();
 
-  // Return explicit preset if stored in DB
+  // Recommended Assists
+  const assists = {
+    tractionControl: "OFF (Crucial for launch & corner exit speed)",
+    abs: "ON",
+    esp: "OFF",
+    countersteerAssist: "OFF (Direct control)",
+    transmission: "Manual (Required for powerband management)"
+  };
+
   const matchedKey = Object.keys(INDEPENDENT_CAR_DB).find(k => carKey.includes(k) || k.includes(carKey));
   if (matchedKey && carKey.length > 3) {
     return {
@@ -106,12 +111,12 @@ function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, c
       engineLayout,
       category,
       sliders: INDEPENDENT_CAR_DB[matchedKey].sliders,
+      assists,
       metaTips: INDEPENDENT_CAR_DB[matchedKey].metaTips,
       isExplicitMatch: true
     };
   }
 
-  // Calculate dynamic slider percentages based on unique car properties
   let arbF = 0, arbR = 0;
   let springF = 0, springR = 0;
   let damperF = 0, damperR = 0;
@@ -176,10 +181,9 @@ function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, c
       aeroDownforce: aero,
       brakeBalance: `${brakeBias}% Front / ${100 - brakeBias}% Rear`,
       gearRatio: gears,
-      steeringSensitivity: steer,
-      tractionControl: "OFF",
-      abs: "ON"
+      steeringSensitivity: steer
     },
+    assists,
     metaTips: `Custom calculated setup for a ${drivetrain} ${engineLayout} vehicle in the ${category} class. ARBs balanced specifically for weight distribution.`,
     isExplicitMatch: false
   };
