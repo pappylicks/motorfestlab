@@ -1,414 +1,219 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motorfest Build Lab - Independent Pro Settings</title>
-  <style>
-    :root {
-      --bg: #0d0f12;
-      --panel: #181c24;
-      --border: #2a313d;
-      --accent: #ff0055;
-      --accent-gold: #ffb700;
-      --accent-cyan: #00f0ff;
-      --text: #f0f4f8;
-      --text-muted: #8c9ba5;
-    }
+const express = require('express');
+const path = require('path');
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 20px;
-      border-bottom: 2px solid var(--accent);
-      margin-bottom: 24px;
-    }
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-    h1 { font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-gold); }
-    .subtitle { font-size: 0.85rem; color: var(--text-muted); }
+const LEGEND_SETS = [
+  { id: 'nitro_chemist', name: 'Nitro Chemist', multiplier: '2x Nitro Duration', category: 'General' },
+  { id: 'score_breaker', name: 'Score Breaker', multiplier: '2x Skill Points', category: 'Feats' },
+  { id: 'fame_magnet', name: 'Fame Magnet', multiplier: '2x Follower Points', category: 'Progression' },
+  { id: 'loot_digger', name: 'Loot Digger', multiplier: '2x Part Drops', category: 'Farming' },
+  { id: 'clean_driver', name: 'Clean Driver', multiplier: '2x Clean Driving Points', category: 'Feats' }
+];
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+const AFFIXES = [
+  { id: 'pure', name: 'Pure (Nitro Power)', maxPerPart: 3.5, unit: '%' },
+  { id: 'extra_pump', name: 'Extra Pump (Nitro Refill)', maxPerPart: 5.0, unit: '%' },
+  { id: 'frenetic', name: 'Frenetic (Nitro Acceleration)', maxPerPart: 4.0, unit: '%' },
+  { id: 'ventilated', name: 'Ventilated (Nitro Cooldown)', maxPerPart: 4.5, unit: '%' },
+  { id: 'resourceful', name: 'Resourceful (Slipstream Refill)', maxPerPart: 6.0, unit: '%' },
+  { id: 'slippery', name: 'Slippery (Drift Score/Multiplier)', maxPerPart: 5.0, unit: '%' },
+  { id: 'gold_digger', name: 'Gold Digger (Bucks Booster)', maxPerPart: 3.0, unit: '%' }
+];
 
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+// Seed Database for Explicit Meta Presets
+const INDEPENDENT_CAR_DB = {
+  "gordon murray automotive t.50": {
+    drivetrain: "RWD",
+    engineLayout: "Mid-Engine",
+    sliders: {
+      arbFront: "+10%", arbRear: "-10%",
+      springFront: "+15%", springRear: "0%",
+      damperFront: "+10%", damperRear: "-5%",
+      aeroDownforce: "-15% (-3 notches)",
+      brakeBalance: "48% Front / 52% Rear",
+      gearRatio: "+10% (Speed)",
+      steeringSensitivity: "+3 notches",
+      tractionControl: "OFF", abs: "ON"
+    },
+    metaTips: "High-revving V12 mid-engine layout. Mid-engine rear stability requires Front ARB at +10% and Rear at -10% to prevent snapshot oversteer under high-speed trail braking."
+  },
+  "porsche 911 gt3 rs": {
+    drivetrain: "RWD",
+    engineLayout: "Rear-Engine",
+    sliders: {
+      arbFront: "-15%", arbRear: "+25%",
+      springFront: "-10%", springRear: "+20%",
+      damperFront: "-5%", damperRear: "+15%",
+      aeroDownforce: "+20% (+4 notches)",
+      brakeBalance: "45% Front / 55% Rear",
+      gearRatio: "+5% (Speed)",
+      steeringSensitivity: "+4 notches",
+      tractionControl: "OFF", abs: "ON"
+    },
+    metaTips: "Rear-engine weight bias causes off-throttle understeer. Offsetting Rear ARB to +25% forces the rear pendulum to rotate the car into apexes cleanly."
+  },
+  "nissan skyline gt-r (r34)": {
+    drivetrain: "AWD",
+    engineLayout: "Front-Engine",
+    sliders: {
+      arbFront: "-20%", arbRear: "+30%",
+      springFront: "-10%", springRear: "+15%",
+      damperFront: "-10%", damperRear: "+10%",
+      aeroDownforce: "0% (0 notches)",
+      brakeBalance: "46% Front / 54% Rear",
+      gearRatio: "-5% (Acceleration)",
+      steeringSensitivity: "+3 notches",
+      tractionControl: "OFF", abs: "ON"
+    },
+    metaTips: "Front-heavy ATTESA AWD setup natively understeers. Softening Front ARB to -20% and hardening Rear ARB to +30% unlocks sharp corner-entry rotation."
+  }
+};
 
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+// Dynamic Car Property Analyzer for any custom vehicle typed by the user
+function computeIndependentProSettings(carNameInput, drivetrain, engineLayout, category) {
+  const carKey = carNameInput.toLowerCase().trim();
 
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+  // Return explicit preset if stored in DB
+  const matchedKey = Object.keys(INDEPENDENT_CAR_DB).find(k => carKey.includes(k) || k.includes(carKey));
+  if (matchedKey && carKey.length > 3) {
+    return {
+      carName: carNameInput,
+      drivetrain,
+      engineLayout,
+      category,
+      sliders: INDEPENDENT_CAR_DB[matchedKey].sliders,
+      metaTips: INDEPENDENT_CAR_DB[matchedKey].metaTips,
+      isExplicitMatch: true
+    };
+  }
 
-    input, select, textarea {
-      background: #101216;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      outline: none;
-    }
+  // Calculate dynamic slider percentages based on unique car properties
+  let arbF = 0, arbR = 0;
+  let springF = 0, springR = 0;
+  let damperF = 0, damperR = 0;
+  let brakeBias = 50;
+  let aero = "0% (0 notches)";
+  let gears = "0%";
+  let steer = "+3 notches";
 
-    input:focus, select:focus, textarea:focus { border-color: var(--accent-gold); }
+  // Drivetrain Bias Logic
+  if (drivetrain === "FWD") {
+    arbF = -25; arbR = +35;
+    springF = -15; springR = +25;
+    brakeBias = 44; // Rear biased to rotate FWD
+  } else if (drivetrain === "AWD") {
+    arbF = -15; arbR = +20;
+    springF = -5; springR = +10;
+    brakeBias = 47;
+  } else { // RWD
+    arbF = +5; arbR = -5;
+    springF = +10; springR = 0;
+    brakeBias = 49;
+  }
 
-    .affix-row {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 10px;
-      align-items: center;
-      background: rgba(0,0,0,0.2);
-      padding: 8px;
-      border-radius: 4px;
-    }
+  // Engine Placement Physics Adjustments
+  if (engineLayout === "Rear-Engine") {
+    arbF -= 10; arbR += 15; // Fight front push from light nose
+    springR += 15;
+    brakeBias -= 3;
+  } else if (engineLayout === "Mid-Engine") {
+    arbF += 5; arbR -= 10; // Tame mid-engine snap oversteer
+    springF += 10;
+    gears = "+5% (Speed)";
+  } else { // Front-Engine
+    arbF -= 5; arbR += 10;
+    springF -= 5;
+  }
 
-    .stat-badge {
-      background: rgba(255, 183, 0, 0.15);
-      border: 1px solid var(--accent-gold);
-      color: var(--accent-gold);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 0.85rem;
-      text-align: center;
-    }
+  // Category Fine-Tuning Overlay
+  const catLower = category.toLowerCase();
+  if (catLower.includes("hypercar")) {
+    aero = "-15% (-3 notches)";
+    gears = "+10% (Speed)";
+  } else if (catLower.includes("drift")) {
+    arbF = -35; arbR = +50;
+    springF = -20; springR = +40;
+    brakeBias = 42;
+    aero = "-25% (-5 notches)";
+    gears = "-15% (Acceleration)";
+  }
 
-    button {
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
-      padding: 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: opacity 0.2s;
-    }
+  const formatPct = (val) => (val >= 0 ? `+${val}%` : `${val}%`);
 
-    button:hover { opacity: 0.9; }
+  return {
+    carName: carNameInput,
+    drivetrain,
+    engineLayout,
+    category,
+    sliders: {
+      arbFront: formatPct(arbF),
+      arbRear: formatPct(arbR),
+      springFront: formatPct(springF),
+      springRear: formatPct(springR),
+      damperFront: formatPct(damperF),
+      damperRear: formatPct(damperR),
+      aeroDownforce: aero,
+      brakeBalance: `${brakeBias}% Front / ${100 - brakeBias}% Rear`,
+      gearRatio: gears,
+      steeringSensitivity: steer,
+      tractionControl: "OFF",
+      abs: "ON"
+    },
+    metaTips: `Custom calculated setup for a ${drivetrain} ${engineLayout} vehicle in the ${category} class. ARBs configured to balance weight distribution.`,
+    isExplicitMatch: false
+  };
+}
 
-    .pro-box {
-      background: #11141a;
-      border: 1px solid #333d4d;
-      border-left: 4px solid var(--accent);
-      padding: 14px;
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+let savedBuilds = [];
 
-    .slider-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.82rem;
-      padding: 3px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
+app.get('/api/metadata', (req, res) => {
+  res.json({ legendSets: LEGEND_SETS, affixes: AFFIXES });
+});
 
-    .slider-row span { color: var(--text-muted); }
-    .slider-val {
-      font-weight: bold;
-      color: var(--accent-cyan);
-      font-family: monospace;
-      font-size: 0.88rem;
-    }
+app.get('/api/builds', (req, res) => {
+  res.json(savedBuilds);
+});
 
-    .build-list { display: flex; flex-direction: column; gap: 12px; }
-    .build-item {
-      background: #11141a;
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--accent-gold);
-      padding: 14px;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
+app.get('/api/pro-settings', (req, res) => {
+  const carName = req.query.car || 'Gordon Murray Automotive T.50';
+  const drivetrain = req.query.drivetrain || 'RWD';
+  const engineLayout = req.query.engineLayout || 'Mid-Engine';
+  const category = req.query.category || 'Hypercar';
 
-    .build-info h3 { font-size: 1rem; color: #fff; }
-    .build-info p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
-    .build-stats { font-size: 0.8rem; color: var(--accent-gold); margin-top: 6px; }
+  const result = computeIndependentProSettings(carName, drivetrain, engineLayout, category);
+  res.json({ data: result });
+});
 
-    .btn-delete {
-      background: transparent;
-      color: #ff4444;
-      border: 1px solid #ff4444;
-      padding: 4px 8px;
-      font-size: 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
+app.post('/api/builds', (req, res) => {
+  const { carName, category, legendSet, affixes, notes } = req.body;
+  if (!carName || !category) {
+    return res.status(400).json({ error: 'Car Name and Category are required.' });
+  }
 
-  <header>
-    <div>
-      <h1>Motorfest Build Lab</h1>
-      <div class="subtitle">Independent Vehicle Dynamics Engine & Pro Settings</div>
-    </div>
-    <div class="stat-badge">Per-Vehicle Tuning Engine</div>
-  </header>
+  const newBuild = {
+    id: Date.now(),
+    carName,
+    category,
+    legendSet: legendSet || 'None',
+    affixes: affixes || {},
+    notes: notes || ''
+  };
 
-  <div class="grid">
-    
-    <!-- LEFT: INDEPENDENT CAR CONFIG -->
-    <div class="card">
-      <div class="card-title">Vehicle Properties</div>
+  savedBuilds.push(newBuild);
+  res.status(201).json(newBuild);
+});
 
-      <div class="form-group">
-        <label>Vehicle Name</label>
-        <input type="text" id="carName" value="Gordon Murray Automotive T.50" placeholder="Type any car name..." oninput="fetchProSettings()" />
-      </div>
+app.delete('/api/builds/:id', (req, res) => {
+  const buildId = parseInt(req.params.id, 10);
+  savedBuilds = savedBuilds.filter(b => b.id !== buildId);
+  res.json({ success: true, message: 'Build deleted successfully.' });
+});
 
-      <div class="form-grid-3">
-        <div class="form-group">
-          <label>Drivetrain</label>
-          <select id="drivetrain" onchange="fetchProSettings()">
-            <option value="RWD">RWD</option>
-            <option value="AWD">AWD</option>
-            <option value="FWD">FWD</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Engine Layout</label>
-          <select id="engineLayout" onchange="fetchProSettings()">
-            <option value="Mid-Engine">Mid-Engine</option>
-            <option value="Front-Engine">Front-Engine</option>
-            <option value="Rear-Engine">Rear-Engine</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Discipline</label>
-          <select id="category" onchange="fetchProSettings()">
-            <option value="Hypercar">Hypercar</option>
-            <option value="Street Tier 2">Street Tier 2</option>
-            <option value="Street Tier 1">Street Tier 1</option>
-            <option value="Racing">Racing</option>
-            <option value="Drift">Drift</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- CALCULATED SLIDER BARS -->
-      <div class="pro-box">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span id="proCarName" style="font-weight:bold; color:var(--accent-gold);">Gordon Murray Automotive T.50</span>
-          <span id="matchBadge" style="font-size:0.75rem; color:var(--accent-cyan);">[CALCULATED TUNE]</span>
-        </div>
-        
-        <div style="display:flex; flex-direction:column; gap:2px; margin-top:4px;">
-          <div class="slider-row"><span>Front Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbFront">--</div></div>
-          <div class="slider-row"><span>Rear Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbRear">--</div></div>
-          <div class="slider-row"><span>Front Springs:</span> <div class="slider-val" id="barSpringFront">--</div></div>
-          <div class="slider-row"><span>Rear Springs:</span> <div class="slider-val" id="barSpringRear">--</div></div>
-          <div class="slider-row"><span>Front Dampers:</span> <div class="slider-val" id="barDamperFront">--</div></div>
-          <div class="slider-row"><span>Rear Dampers:</span> <div class="slider-val" id="barDamperRear">--</div></div>
-          <div class="slider-row"><span>Aero Downforce:</span> <div class="slider-val" id="barAero">--</div></div>
-          <div class="slider-row"><span>Brake Balance:</span> <div class="slider-val" id="barBrake">--</div></div>
-          <div class="slider-row"><span>Gear Ratio:</span> <div class="slider-val" id="barGears">--</div></div>
-          <div class="slider-row"><span>Steering Sensitivity:</span> <div class="slider-val" id="barSteer">--</div></div>
-        </div>
-
-        <div style="font-size:0.78rem; color: var(--accent-gold); margin-top: 4px; border-top:1px dashed #222; padding-top:6px;" id="proTips">
-          --
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Golden Part Set Bonus</label>
-        <select id="legendSet"></select>
-      </div>
-
-      <div class="card-title" style="font-size: 0.95rem; margin-top: 8px;">Affix Allocations (Max 7 Parts)</div>
-
-      <div class="affix-row">
-        <div>
-          <strong style="font-size:0.85rem;">Pure</strong>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Nitro Power (+3.5%/part)</div>
-        </div>
-        <input type="number" id="affix_pure" min="0" max="7" value="7" onchange="calculateStats()" />
-        <div class="stat-badge" id="calc_pure">+24.5%</div>
-      </div>
-
-      <div class="affix-row">
-        <div>
-          <strong style="font-size:0.85rem;">Extra Pump</strong>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Nitro Refill (+5.0%/part)</div>
-        </div>
-        <input type="number" id="affix_extra_pump" min="0" max="7" value="7" onchange="calculateStats()" />
-        <div class="stat-badge" id="calc_extra_pump">+35.0%</div>
-      </div>
-
-      <div class="form-group">
-        <label>Garage Notes</label>
-        <textarea id="notes" rows="2" placeholder="e.g. Front ARB set to +10%, Rear ARB -10%"></textarea>
-      </div>
-
-      <button onclick="saveBuild()">Save Vehicle Build</button>
-    </div>
-
-    <!-- RIGHT: SAVED BUILDS DASHBOARD -->
-    <div class="card">
-      <div class="card-title">
-        Saved Garage Builds
-        <span id="buildCount" style="font-size:0.85rem; color: var(--text-muted);">0 Saved</span>
-      </div>
-
-      <div class="build-list" id="buildsContainer"></div>
-    </div>
-
-  </div>
-
-  <script>
-    let metaData = { legendSets: [], affixes: [] };
-    let debounceTimer;
-
-    async function init() {
-      const res = await fetch('/api/metadata');
-      metaData = await res.json();
-
-      const setSelect = document.getElementById('legendSet');
-      metaData.legendSets.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = `${s.name} (${s.multiplier})`;
-        setSelect.appendChild(opt);
-      });
-
-      calculateStats();
-      loadBuilds();
-      fetchProSettings();
-    }
-
-    async function fetchProSettings() {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(async () => {
-        const car = document.getElementById('carName').value || 'Selected Vehicle';
-        const drivetrain = document.getElementById('drivetrain').value;
-        const engineLayout = document.getElementById('engineLayout').value;
-        const category = document.getElementById('category').value;
-
-        const url = `/api/pro-settings?car=${encodeURIComponent(car)}&drivetrain=${encodeURIComponent(drivetrain)}&engineLayout=${encodeURIComponent(engineLayout)}&category=${encodeURIComponent(category)}`;
-        const res = await fetch(url);
-        const json = await res.json();
-        const data = json.data;
-
-        document.getElementById('proCarName').textContent = data.carName;
-        document.getElementById('matchBadge').textContent = data.isExplicitMatch ? '[EXACT META MATCH]' : '[DYNAMIC DYNAMICS TUNE]';
-        document.getElementById('matchBadge').style.color = data.isExplicitMatch ? 'var(--accent-gold)' : 'var(--accent-cyan)';
-
-        document.getElementById('barArbFront').textContent = data.sliders.arbFront;
-        document.getElementById('barArbRear').textContent = data.sliders.arbRear;
-        document.getElementById('barSpringFront').textContent = data.sliders.springFront;
-        document.getElementById('barSpringRear').textContent = data.sliders.springRear;
-        document.getElementById('barDamperFront').textContent = data.sliders.damperFront;
-        document.getElementById('barDamperRear').textContent = data.sliders.damperRear;
-        document.getElementById('barAero').textContent = data.sliders.aeroDownforce;
-        document.getElementById('barBrake').textContent = data.sliders.brakeBalance;
-        document.getElementById('barGears').textContent = data.sliders.gearRatio;
-        document.getElementById('barSteer').textContent = data.sliders.steeringSensitivity;
-
-        document.getElementById('proTips').textContent = `Physics Note: ${data.metaTips}`;
-      }, 150);
-    }
-
-    function calculateStats() {
-      const pureCount = parseInt(document.getElementById('affix_pure').value) || 0;
-      const pumpCount = parseInt(document.getElementById('affix_extra_pump').value) || 0;
-
-      document.getElementById('calc_pure').textContent = `+${(pureCount * 3.5).toFixed(1)}%`;
-      document.getElementById('calc_extra_pump').textContent = `+${(pumpCount * 5.0).toFixed(1)}%`;
-    }
-
-    async function loadBuilds() {
-      const res = await fetch('/api/builds');
-      const builds = await res.json();
-
-      const container = document.getElementById('buildsContainer');
-      document.getElementById('buildCount').textContent = `${builds.length} Saved`;
-      container.innerHTML = '';
-
-      builds.forEach(b => {
-        const setName = metaData.legendSets.find(s => s.id === b.legendSet)?.name || b.legendSet;
-        const purePct = ((b.affixes?.pure || 0) * 3.5).toFixed(1);
-        const pumpPct = ((b.affixes?.extra_pump || 0) * 5.0).toFixed(1);
-
-        const el = document.createElement('div');
-        el.className = 'build-item';
-        el.innerHTML = `
-          <div class="build-info">
-            <h3>${b.carName} <span style="font-size:0.75rem; color:var(--text-muted);">[${b.category}]</span></h3>
-            <p><strong>Set:</strong> ${setName}</p>
-            <div class="build-stats">Pure: +${purePct}% | Extra Pump: +${pumpPct}%</div>
-            ${b.notes ? `<p style="margin-top:4px; font-style:italic;">"${b.notes}"</p>` : ''}
-          </div>
-          <button class="btn-delete" onclick="deleteBuild(${b.id})">Delete</button>
-        `;
-        container.appendChild(el);
-      });
-    }
-
-    async function saveBuild() {
-      const carName = document.getElementById('carName').value;
-      const category = document.getElementById('category').value;
-      const legendSet = document.getElementById('legendSet').value;
-      const notes = document.getElementById('notes').value;
-
-      const pure = parseInt(document.getElementById('affix_pure').value) || 0;
-      const extra_pump = parseInt(document.getElementById('affix_extra_pump').value) || 0;
-
-      if (!carName) {
-        alert('Please enter a vehicle name.');
-        return;
-      }
-
-      await fetch('/api/builds', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          carName,
-          category,
-          legendSet,
-          affixes: { pure, extra_pump },
-          notes
-        })
-      });
-
-      document.getElementById('notes').value = '';
-      loadBuilds();
-    }
-
-    async function deleteBuild(id) {
-      await fetch(`/api/builds/${id}`, { method: 'DELETE' });
-      loadBuilds();
-    }
-
-    init();
-  </script>
-</body>
-</html>
+app.listen(PORT, () => {
+  console.log(`Motorfest Build Lab running on http://localhost:${PORT}`);
+});
