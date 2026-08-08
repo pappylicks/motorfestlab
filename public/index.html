@@ -9,10 +9,9 @@
       --mf-yellow: #ffeb00;
       --mf-magenta: #ff0055;
       --mf-cyan: #00f0ff;
-      --mf-dark-bg: rgba(10, 12, 18, 0.88);
-      --mf-panel: rgba(18, 22, 32, 0.85);
-      --mf-card: rgba(26, 31, 46, 0.9);
-      --border-color: rgba(255, 235, 0, 0.25);
+      --mf-panel: rgba(12, 15, 22, 0.92);
+      --mf-card: rgba(20, 25, 36, 0.92);
+      --border-color: rgba(255, 235, 0, 0.35);
       --text-main: #ffffff;
       --text-muted: #a0aec0;
     }
@@ -28,13 +27,12 @@
       position: relative;
     }
 
-    /* Dark backdrop blur for contrast */
+    /* Dark overlay without backdrop blur */
     body::before {
       content: '';
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(8, 10, 15, 0.82);
-      backdrop-filter: blur(8px);
+      background: rgba(8, 10, 15, 0.65);
       z-index: -1;
     }
 
@@ -48,8 +46,7 @@
       background: var(--mf-panel);
       padding: 16px 24px;
       border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
     }
 
     h1 {
@@ -86,8 +83,7 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
     }
 
     .card-title {
@@ -108,8 +104,8 @@
     label { font-size: 0.75rem; color: var(--mf-cyan); text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; }
 
     input, select {
-      background: rgba(10, 12, 18, 0.9);
-      border: 1px solid rgba(0, 240, 255, 0.3);
+      background: rgba(10, 12, 18, 0.95);
+      border: 1px solid rgba(0, 240, 255, 0.4);
       color: #fff;
       padding: 12px;
       border-radius: 6px;
@@ -121,7 +117,7 @@
 
     input:focus, select:focus {
       border-color: var(--mf-yellow);
-      box-shadow: 0 0 10px rgba(255, 235, 0, 0.3);
+      box-shadow: 0 0 10px rgba(255, 235, 0, 0.4);
     }
 
     /* Pro Settings Sliders Box */
@@ -142,7 +138,7 @@
       align-items: center;
       font-size: 0.85rem;
       padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .slider-row span { color: var(--text-muted); font-weight: 500; }
@@ -155,7 +151,7 @@
     }
 
     .assist-box {
-      background: rgba(255, 0, 85, 0.08);
+      background: rgba(255, 0, 85, 0.12);
       border: 1px solid var(--mf-magenta);
       border-radius: 8px;
       padding: 14px;
@@ -173,7 +169,7 @@
     /* Meta Directory Styling */
     .meta-class-section {
       background: var(--mf-card);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       padding: 14px;
       margin-bottom: 14px;
@@ -191,7 +187,7 @@
     }
 
     .car-meta-card {
-      background: rgba(10, 12, 18, 0.6);
+      background: rgba(10, 12, 18, 0.75);
       border-left: 4px solid var(--mf-cyan);
       padding: 10px 12px;
       border-radius: 6px;
