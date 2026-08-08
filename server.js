@@ -7,7 +7,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Legend Sets & Affixes
 const LEGEND_SETS = [
   { id: 'nitro_chemist', name: 'Nitro Chemist', multiplier: '2x Nitro Duration', category: 'General' },
   { id: 'score_breaker', name: 'Score Breaker', multiplier: '2x Skill Points', category: 'Feats' },
@@ -26,249 +25,130 @@ const AFFIXES = [
   { id: 'gold_digger', name: 'Gold Digger (Bucks Booster)', maxPerPart: 3.0, unit: '%' }
 ];
 
-// Explicit Database for Top Meta Cars across Disciplines
-const TOP_META_DB = {
-  // Hypercars
-  "gordon murray automotive t.50": {
-    carName: "Gordon Murray Automotive T.50",
-    category: "Hypercar",
-    racingStyle: "Grand Race High-Speed Meta",
-    settings: {
-      brakeBalance: "48% Front / 52% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "-3 notches (High V-Max)",
-      gearRatio: "+2 Speed",
-      arbFrontRear: "Front: Stiff | Rear: Medium-Soft",
-      steeringSensitivity: "Direct (+3)"
-    },
-    metaTips: "V12 high-RPM power curve excels in Grand Race slipstreams. Pair with 7x Pure + 7x Extra Pump Nitro Chemist set."
-  },
-  "bugatti chiron ss 300+": {
-    carName: "Bugatti Chiron SS 300+",
-    category: "Hypercar",
-    racingStyle: "Grand Race Top Speed King",
-    settings: {
-      brakeBalance: "50% Front / 50% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "-5 notches (Minimum Drag)",
-      gearRatio: "+3 Speed",
-      arbFrontRear: "Front: Medium | Rear: Stiff",
-      steeringSensitivity: "Standard (0)"
-    },
-    metaTips: "Maximize straight-line speed by stripping aerodynamic drag. Essential for long highway Grand Race layouts."
-  },
-  "koenigsegg jesko": {
-    carName: "Koenigsegg Jesko",
-    category: "Hypercar",
-    racingStyle: "Cornering & Acceleration Meta",
-    settings: {
-      brakeBalance: "49% Front / 51% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "-1 notch",
-      gearRatio: "+1 Speed",
-      arbFrontRear: "Front: Medium-Stiff | Rear: Medium",
-      steeringSensitivity: "High (+2)"
-    },
-    metaTips: "Incredible grip and top-end punch. Soften rear ARBs slightly to prevent lift-off oversteer on fast transitions."
-  },
-
-  // Street Tier 2
-  "nissan skyline gt-r (r34)": {
-    carName: "Nissan Skyline GT-R (R34)",
-    category: "Street Tier 2",
-    racingStyle: "All-Rounder Circuit Meta",
-    settings: {
-      brakeBalance: "46% Front / 54% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "+1 notch (Grip)",
-      gearRatio: "-1 Acceleration",
-      arbFrontRear: "Front: Soft | Rear: Stiff",
-      steeringSensitivity: "High (+3)"
-    },
-    metaTips: "AWD system gives huge corner-exit traction. Rear-biased brakes allow trail-braking rotation into hairpin turns."
-  },
-  "lamborghini huracan lp610-4": {
-    carName: "Lamborghini Huracán LP610-4",
-    category: "Street Tier 2",
-    racingStyle: "Street Sprint Meta",
-    settings: {
-      brakeBalance: "48% Front / 52% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "0 notches (Balanced)",
-      gearRatio: "+1 Speed",
-      arbFrontRear: "Front: Medium | Rear: Medium-Stiff",
-      steeringSensitivity: "High (+2)"
-    },
-    metaTips: "Extremely balanced V10 platform. Ideal for technical urban circuits in Grand Race rounds."
-  },
-  "ferrari f40": {
-    carName: "Ferrari F40",
-    category: "Street Tier 2",
-    racingStyle: "Lightweight Agility Meta",
-    settings: {
-      brakeBalance: "47% Front / 53% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "+2 notches",
-      gearRatio: "Standard",
-      arbFrontRear: "Front: Soft | Rear: Medium",
-      steeringSensitivity: "Direct (+4)"
-    },
-    metaTips: "High power-to-weight ratio. Gentle throttle modulation required out of low-speed corners."
-  },
-
-  // Street Tier 1
-  "porsche 911 carrera rs 2.7": {
-    carName: "Porsche 911 Carrera RS 2.7",
-    category: "Street Tier 1",
-    racingStyle: "Technical Track Meta",
-    settings: {
-      brakeBalance: "45% Front / 55% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "+1 notch",
-      gearRatio: "Standard",
-      arbFrontRear: "Front: Soft | Rear: Stiff",
-      steeringSensitivity: "High (+3)"
-    },
-    metaTips: "Rear-engine layout provides great drive out of corners. Keep rear ARBs stiff to prevent understeer."
-  },
-  "honda integra type r": {
-    carName: "Honda Integra Type R",
-    category: "Street Tier 1",
-    racingStyle: "FWD Precision Meta",
-    settings: {
-      brakeBalance: "42% Front / 58% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "0 notches",
-      gearRatio: "-1 Acceleration",
-      arbFrontRear: "Front: Soft | Rear: Very Stiff",
-      steeringSensitivity: "High (+4)"
-    },
-    metaTips: "Stiff rear ARBs and rearward brake bias force the FWD chassis to rotate easily without scrubbing speed."
-  },
-
-  // Alpha GP
-  "red bull rb14": {
-    carName: "Red Bull RB14",
-    category: "Alpha GP",
-    racingStyle: "Maximum Downforce Circuit Meta",
-    settings: {
-      brakeBalance: "50% Front / 50% Rear",
-      tractionControl: "OFF",
-      abs: "ON",
-      aeroDownforce: "+4 notches (High Grip)",
-      gearRatio: "Standard",
-      arbFrontRear: "Front: Stiff | Rear: Stiff",
-      steeringSensitivity: "Maximum (+5)"
-    },
-    metaTips: "Unmatched cornering speeds. Carry extreme momentum through fast chicanes."
-  }
-};
-
-// Universal Pro Settings Generator for ANY Car in Motorfest
+// Universal Precise Pro Settings Slider Bar Engine
 function generateUniversalProSettings(carInput, categoryInput) {
-  const car = (carInput || "Selected Vehicle").toLowerCase().trim();
-  const category = (categoryInput || "Street Tier 2").trim();
+  const car = (carInput || "Selected Vehicle").trim();
+  const cat = (categoryInput || "Street Tier 2").toLowerCase();
 
-  // Dynamic Rule-Based Pro Settings Algorithmic Engine
-  let brakeBalance = "48% Front / 52% Rear";
-  let tractionControl = "OFF";
-  let abs = "ON";
-  let aero = "0 notches (Balanced)";
-  let gears = "Standard";
-  let arbs = "Front: Medium | Rear: Medium-Stiff";
-  let steering = "High (+2)";
-  let style = `${category} Optimized Setup`;
-  let tips = "Optimal baseline Pro Setting. Keep Traction Control OFF to prevent engine power cut on corner exit.";
+  // Slider Bars Structure with exact percentage shifts and notches
+  let sliders = {
+    arbFront: "0%",
+    arbRear: "0%",
+    springFront: "0%",
+    springRear: "0%",
+    damperFront: "0%",
+    damperRear: "0%",
+    aeroDownforce: "0 notches",
+    brakeBalance: "50% Front / 50% Rear",
+    brakePressure: "100%",
+    gearRatio: "0%",
+    steeringSensitivity: "+2 notches",
+    tractionControl: "OFF",
+    abs: "ON"
+  };
 
-  const catLower = category.toLowerCase();
+  let style = `${categoryInput} Grand Race Setup`;
+  let tips = "Optimal baseline Pro Setting. Keep Traction Control OFF to maintain power on corner exit.";
 
-  if (catLower.includes("hypercar")) {
-    style = "Grand Race Hypercar Meta Setup";
-    aero = "-2 notches (Favors V-Max Top Speed)";
-    gears = "+1 Speed";
-    brakeBalance = "49% Front / 51% Rear";
-    arbs = "Front: Medium-Stiff | Rear: Medium";
-    tips = "Hypercars require low aerodynamic drag to maximize slipstream speeds in Grand Races. Run with 7x Pure + 7x Extra Pump.";
-  } else if (catLower.includes("street tier 2")) {
-    style = "ST2 High Performance Circuit Setup";
-    aero = "0 notches";
-    gears = "Standard / +1 Speed";
-    brakeBalance = "47% Front / 53% Rear";
-    arbs = "Front: Soft-Medium | Rear: Stiff";
-    tips = "Stiff rear anti-roll bars help rotate heavy AWD and RWD street cars through technical chicanes.";
-  } else if (catLower.includes("street tier 1")) {
-    style = "ST1 Precision Handling Setup";
-    aero = "+1 notch (Cornering Grip)";
-    gears = "-1 Acceleration";
-    brakeBalance = "46% Front / 54% Rear";
-    arbs = "Front: Soft | Rear: Medium-Stiff";
-    tips = "Slightly shorter gear ratios capitalize on ST1 engine torque out of slow apexes.";
-  } else if (catLower.includes("racing")) {
-    style = "Circuit & Endurance Track Setup";
-    aero = "+2 notches (Grip & High Downforce)";
-    gears = "Standard";
-    brakeBalance = "50% Front / 50% Rear";
-    arbs = "Front: Stiff | Rear: Stiff";
-    tips = "Race-spec chassis benefits from stiff anti-roll bars to maintain flat platform stability during aggressive trail braking.";
-  } else if (catLower.includes("drift")) {
+  if (cat.includes("hypercar")) {
+    style = "Grand Race Hypercar V-Max Setup";
+    sliders.arbFront = "+10%";
+    sliders.arbRear = "-10%";
+    sliders.springFront = "+15%";
+    sliders.springRear = "0%";
+    sliders.damperFront = "+10%";
+    sliders.damperRear = "-5%";
+    sliders.aeroDownforce = "-15% (-3 notches)";
+    sliders.brakeBalance = "48% Front / 52% Rear";
+    sliders.gearRatio = "+10% (Speed)";
+    sliders.steeringSensitivity = "+3 notches";
+    tips = "ARBs set to Front +10% and Rear -10% eliminate high-speed sway while preserving 450+ km/h straight-line slipstream speed.";
+  } else if (cat.includes("street tier 2") || cat.includes("st2")) {
+    style = "Street Tier 2 Technical Circuit Setup";
+    sliders.arbFront = "-10%";
+    sliders.arbRear = "+15%";
+    sliders.springFront = "-5%";
+    sliders.springRear = "+10%";
+    sliders.damperFront = "0%";
+    sliders.damperRear = "+10%";
+    sliders.aeroDownforce = "0% (0 notches)";
+    sliders.brakeBalance = "47% Front / 53% Rear";
+    sliders.gearRatio = "+5% (Speed)";
+    sliders.steeringSensitivity = "+3 notches";
+    tips = "Rear ARB set to +15% forces heavy AWD/RWD platforms to rotate sharply into hairpins without scrubbing momentum.";
+  } else if (cat.includes("street tier 1") || cat.includes("st1")) {
+    style = "Street Tier 1 Precision Handling Setup";
+    sliders.arbFront = "-15%";
+    sliders.arbRear = "+20%";
+    sliders.springFront = "-10%";
+    sliders.springRear = "+15%";
+    sliders.damperFront = "-5%";
+    sliders.damperRear = "+10%";
+    sliders.aeroDownforce = "+10% (+2 notches)";
+    sliders.brakeBalance = "46% Front / 54% Rear";
+    sliders.gearRatio = "-5% (Acceleration)";
+    sliders.steeringSensitivity = "+4 notches";
+    tips = "Setting Front ARB to -15% and Rear ARB to +20% solves FWD/RWD understeer completely.";
+  } else if (cat.includes("racing")) {
+    style = "Touring & Track Race Setup";
+    sliders.arbFront = "+20%";
+    sliders.arbRear = "+10%";
+    sliders.springFront = "+25%";
+    sliders.springRear = "+20%";
+    sliders.damperFront = "+20%";
+    sliders.damperRear = "+15%";
+    sliders.aeroDownforce = "+20% (+4 notches)";
+    sliders.brakeBalance = "50% Front / 50% Rear";
+    sliders.gearRatio = "0%";
+    sliders.steeringSensitivity = "+4 notches";
+    tips = "Stiff spring and damper bars keep the aerodynamic platform flat under heavy trail-braking.";
+  } else if (cat.includes("drift")) {
     style = "High-Score Summit Drift Setup";
-    aero = "-5 notches (Minimum Downforce)";
-    gears = "-2 Acceleration";
-    brakeBalance = "42% Front / 58% Rear";
-    tractionControl = "OFF";
-    abs = "OFF";
-    arbs = "Front: Soft | Rear: Maximum Stiff";
-    steering = "Maximum (+5)";
-    tips = "Slippery set bonus with 7x Slippery + 7x Extra Pump affixes ensures continuous high multiplier score chaining.";
-  } else if (catLower.includes("rally") || catLower.includes("raid")) {
-    style = "Off-Road Traction & Jump Stability Setup";
-    aero = "0 notches";
-    gears = "-1 Acceleration";
-    brakeBalance = "45% Front / 55% Rear";
-    arbs = "Front: Soft | Rear: Soft";
-    steering = "High (+3)";
-    tips = "Soft anti-roll bars absorb off-road bumps and keep all four tires planted over jumps without losing direction.";
-  } else if (catLower.includes("alpha gp")) {
-    style = "Open-Wheel Aerodynamic Meta";
-    aero = "+4 notches";
-    gears = "Standard";
-    brakeBalance = "50% Front / 50% Rear";
-    arbs = "Front: Stiff | Rear: Stiff";
-    steering = "Maximum (+5)";
-    tips = "Alpha GP vehicles feature instant directional turn-in response. Keep brake bias centered at 50/50.";
-  } else if (catLower.includes("dragster")) {
-    style = "Drag Strip Launch Meta";
-    aero = "-5 notches";
-    gears = "+3 Speed";
-    brakeBalance = "30% Front / 70% Rear";
-    arbs = "Front: Maximum Stiff | Rear: Maximum Stiff";
-    tips = "Shift at perfect green-zone RPMs and activate Nitro Chemist immediately after 2nd gear engages.";
+    sliders.arbFront = "-30%";
+    sliders.arbRear = "+50%";
+    sliders.springFront = "-20%";
+    sliders.springRear = "+40%";
+    sliders.damperFront = "-15%";
+    sliders.damperRear = "+30%";
+    sliders.aeroDownforce = "-25% (-5 notches)";
+    sliders.brakeBalance = "42% Front / 58% Rear";
+    sliders.gearRatio = "-15% (Acceleration)";
+    sliders.steeringSensitivity = "+5 notches";
+    sliders.abs = "OFF";
+    tips = "Rear ARB at +50% and Front ARB at -30% produces instant slide initiation for maximum Summit points.";
+  } else if (cat.includes("rally") || cat.includes("raid")) {
+    style = "Off-Road Bump Absorption Setup";
+    sliders.arbFront = "-25%";
+    sliders.arbRear = "-20%";
+    sliders.springFront = "-30%";
+    sliders.springRear = "-25%";
+    sliders.damperFront = "-20%";
+    sliders.damperRear = "-20%";
+    sliders.aeroDownforce = "0%";
+    sliders.brakeBalance = "45% Front / 55% Rear";
+    sliders.gearRatio = "-10% (Acceleration)";
+    sliders.steeringSensitivity = "+3 notches";
+    tips = "Softening all ARB and spring sliders allows the suspension to absorb jump landings without flipping.";
+  } else if (cat.includes("alpha gp")) {
+    style = "Open-Wheel Aerodynamic Meta Setup";
+    sliders.arbFront = "+30%";
+    sliders.arbRear = "+25%";
+    sliders.springFront = "+35%";
+    sliders.springRear = "+30%";
+    sliders.damperFront = "+30%";
+    sliders.damperRear = "+25%";
+    sliders.aeroDownforce = "+25% (+5 notches)";
+    sliders.brakeBalance = "50% Front / 50% Rear";
+    sliders.gearRatio = "0%";
+    sliders.steeringSensitivity = "+5 notches";
+    tips = "Maximum stiffness across all suspension bars delivers extreme cornering Gs.";
   }
-
-  // Capitalize car name nicely
-  const formattedCarName = carInput.trim().replace(/\b\w/g, l => l.toUpperCase());
 
   return {
-    carName: formattedCarName,
-    category: category,
+    carName: car.replace(/\b\w/g, l => l.toUpperCase()),
+    category: categoryInput,
     racingStyle: style,
-    settings: {
-      brakeBalance,
-      tractionControl,
-      abs,
-      aeroDownforce: aero,
-      gearRatio: gears,
-      arbFrontRear: arbs,
-      steeringSensitivity: steering
-    },
+    sliders,
     metaTips: tips
   };
 }
@@ -280,11 +160,10 @@ let savedBuilds = [
     category: 'Hypercar',
     legendSet: 'nitro_chemist',
     affixes: { pure: 7, extra_pump: 7 },
-    notes: 'Primary Grand Race Hypercar setup.'
+    notes: 'Front ARB +10%, Rear ARB -10%, Aero -15%.'
   }
 ];
 
-// API Routes
 app.get('/api/metadata', (req, res) => {
   res.json({ legendSets: LEGEND_SETS, affixes: AFFIXES });
 });
@@ -293,27 +172,12 @@ app.get('/api/builds', (req, res) => {
   res.json(savedBuilds);
 });
 
-// Universal Pro Settings Search API
 app.get('/api/pro-settings', (req, res) => {
-  const queryCar = (req.query.car || '').toLowerCase().trim();
-  const category = (req.query.category || '').trim();
-
-  // Search exact match in database
-  const matchedKey = Object.keys(TOP_META_DB).find(key => queryCar === key || queryCar.includes(key) || key.includes(queryCar));
-
-  if (matchedKey && queryCar.length > 2) {
-    return res.json({
-      foundExact: true,
-      data: TOP_META_DB[matchedKey]
-    });
-  }
-
-  // Fallback to dynamic rules engine for ANY car input
-  const generatedData = generateUniversalProSettings(req.query.car, category);
-  res.json({
-    foundExact: false,
-    data: generatedData
-  });
+  const car = req.query.car || 'Gordon Murray Automotive T.50';
+  const category = req.query.category || 'Hypercar';
+  
+  const data = generateUniversalProSettings(car, category);
+  res.json({ data });
 });
 
 app.post('/api/builds', (req, res) => {
