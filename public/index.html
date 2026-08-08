@@ -3,52 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motorfest Pro Settings & Grand Race Meta Lab</title>
+  <title>Motorfest Pro Lab | Tuning & Grand Race Meta</title>
   <style>
     :root {
-      --bg: #0d0f12;
-      --panel: #181c24;
-      --border: #2a313d;
-      --accent: #ff0055;
-      --accent-gold: #ffb700;
-      --accent-cyan: #00f0ff;
-      --text: #f0f4f8;
-      --text-muted: #8c9ba5;
+      --mf-yellow: #ffeb00;
+      --mf-magenta: #ff0055;
+      --mf-cyan: #00f0ff;
+      --mf-dark-bg: rgba(10, 12, 18, 0.88);
+      --mf-panel: rgba(18, 22, 32, 0.85);
+      --mf-card: rgba(26, 31, 46, 0.9);
+      --border-color: rgba(255, 235, 0, 0.25);
+      --text-main: #ffffff;
+      --text-muted: #a0aec0;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif; }
+
+    body {
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+      background: #0a0c12 url('https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+    }
+
+    /* Dark backdrop blur for contrast */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(8, 10, 15, 0.82);
+      backdrop-filter: blur(8px);
+      z-index: -1;
+    }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 20px;
-      border-bottom: 2px solid var(--accent);
+      padding-bottom: 16px;
+      border-bottom: 3px solid var(--mf-magenta);
       margin-bottom: 24px;
+      background: var(--mf-panel);
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
     }
 
-    h1 { font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-gold); }
-    .subtitle { font-size: 0.85rem; color: var(--text-muted); }
+    h1 {
+      font-size: 1.8rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--mf-yellow);
+      font-weight: 900;
+      text-shadow: 0 0 12px rgba(255, 235, 0, 0.4);
+    }
+
+    .subtitle { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; }
+
+    .stat-badge {
+      background: linear-gradient(135deg, var(--mf-magenta), #990033);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
+    }
 
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
 
     .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 20px;
+      background: var(--mf-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
     }
 
     .card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--mf-yellow);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 10px;
       display: flex;
       justify-content: space-between;
@@ -56,119 +104,120 @@
     }
 
     .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    label { font-size: 0.75rem; color: var(--mf-cyan); text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; }
 
     input, select {
-      background: #101216;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px;
-      border-radius: 4px;
+      background: rgba(10, 12, 18, 0.9);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: #fff;
+      padding: 12px;
+      border-radius: 6px;
       font-size: 0.9rem;
+      font-weight: 600;
       outline: none;
+      transition: all 0.2s ease;
     }
 
-    input:focus, select:focus { border-color: var(--accent-gold); }
+    input:focus, select:focus {
+      border-color: var(--mf-yellow);
+      box-shadow: 0 0 10px rgba(255, 235, 0, 0.3);
+    }
 
+    /* Pro Settings Sliders Box */
     .pro-box {
-      background: #11141a;
-      border: 1px solid #333d4d;
-      border-left: 4px solid var(--accent);
-      padding: 14px;
-      border-radius: 6px;
+      background: var(--mf-card);
+      border: 1px solid var(--border-color);
+      border-left: 5px solid var(--mf-yellow);
+      padding: 16px;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-    }
-
-    .assist-box {
-      background: rgba(0, 240, 255, 0.05);
-      border: 1px solid var(--accent-cyan);
-      border-radius: 6px;
-      padding: 12px;
-      font-size: 0.8rem;
-    }
-
-    .assist-title {
-      font-weight: bold;
-      color: var(--accent-cyan);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      gap: 10px;
     }
 
     .slider-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.82rem;
-      padding: 3px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.85rem;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .slider-row span { color: var(--text-muted); }
+    .slider-row span { color: var(--text-muted); font-weight: 500; }
     .slider-val {
-      font-weight: bold;
-      color: var(--accent-cyan);
+      font-weight: 800;
+      color: var(--mf-cyan);
       font-family: monospace;
-      font-size: 0.88rem;
+      font-size: 0.95rem;
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
     }
 
-    /* Meta Directory Styles */
+    .assist-box {
+      background: rgba(255, 0, 85, 0.08);
+      border: 1px solid var(--mf-magenta);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 0.82rem;
+    }
+
+    .assist-title {
+      font-weight: 800;
+      color: var(--mf-magenta);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    /* Meta Directory Styling */
     .meta-class-section {
-      background: #11141a;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
+      background: var(--mf-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
     }
 
     .meta-class-title {
-      font-size: 0.95rem;
-      font-weight: bold;
-      color: var(--accent-gold);
-      margin-bottom: 8px;
-      border-bottom: 1px solid var(--border);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--mf-yellow);
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .car-meta-card {
-      background: rgba(0,0,0,0.25);
-      border-left: 3px solid var(--accent-cyan);
-      padding: 8px 10px;
-      border-radius: 4px;
-      margin-bottom: 6px;
+      background: rgba(10, 12, 18, 0.6);
+      border-left: 4px solid var(--mf-cyan);
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
     }
 
     .car-meta-header {
       display: flex;
       justify-content: space-between;
-      font-size: 0.85rem;
-      font-weight: bold;
+      font-size: 0.9rem;
+      font-weight: 700;
     }
 
     .car-meta-type {
       font-size: 0.75rem;
-      color: var(--accent);
+      color: var(--mf-magenta);
       text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 1px;
     }
 
     .car-meta-desc {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      margin-top: 3px;
-    }
-
-    .stat-badge {
-      background: rgba(255, 183, 0, 0.15);
-      border: 1px solid var(--accent-gold);
-      color: var(--accent-gold);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 0.85rem;
-      text-align: center;
+      margin-top: 4px;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -177,20 +226,20 @@
   <header>
     <div>
       <h1>Motorfest Pro Lab</h1>
-      <div class="subtitle">Independent Pro Settings, Assists & Grand Race Meta Directory</div>
+      <div class="subtitle">Vehicle Dynamics Engine & Grand Race Meta Directory</div>
     </div>
-    <div class="stat-badge">Grand Race Ready</div>
+    <div class="stat-badge">Festival Spec</div>
   </header>
 
   <div class="grid">
     
-    <!-- LEFT: INDEPENDENT PRO SETTINGS CALCULATOR -->
+    <!-- LEFT: PRO SETTINGS CONFIGURATOR -->
     <div class="card">
       <div class="card-title">Pro Settings Configurator</div>
 
       <div class="form-group">
         <label>Vehicle Name</label>
-        <input type="text" id="carName" value="Gordon Murray Automotive T.50" placeholder="Type any vehicle name..." oninput="fetchProSettings()" />
+        <input type="text" id="carName" value="Gordon Murray Automotive T.50" placeholder="Type vehicle name..." oninput="fetchProSettings()" />
       </div>
 
       <div class="form-grid-3">
@@ -226,14 +275,14 @@
         </div>
       </div>
 
-      <!-- IN-GAME SLIDER BARS -->
+      <!-- IN-GAME SLIDERS -->
       <div class="pro-box">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span id="proCarName" style="font-weight:bold; color:var(--accent-gold);">Gordon Murray Automotive T.50</span>
-          <span id="matchBadge" style="font-size:0.75rem; color:var(--accent-cyan);">[CALCULATED TUNE]</span>
+          <span id="proCarName" style="font-weight:800; color:var(--mf-yellow); text-transform:uppercase; font-size:1rem;">Gordon Murray Automotive T.50</span>
+          <span id="matchBadge" style="font-size:0.75rem; color:var(--mf-cyan); font-weight:800; letter-spacing:1px;">[CALCULATED TUNE]</span>
         </div>
         
-        <div style="display:flex; flex-direction:column; gap:2px; margin-top:4px;">
+        <div style="display:flex; flex-direction:column; gap:2px; margin-top:6px;">
           <div class="slider-row"><span>Front Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbFront">--</div></div>
           <div class="slider-row"><span>Rear Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbRear">--</div></div>
           <div class="slider-row"><span>Front Springs:</span> <div class="slider-val" id="barSpringFront">--</div></div>
@@ -246,15 +295,15 @@
           <div class="slider-row"><span>Steering Sensitivity:</span> <div class="slider-val" id="barSteer">--</div></div>
         </div>
 
-        <div style="font-size:0.78rem; color: var(--accent-gold); margin-top: 4px; border-top:1px dashed #222; padding-top:6px;" id="proTips">
+        <div style="font-size:0.8rem; color: var(--mf-yellow); margin-top: 6px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px; line-height:1.4;" id="proTips">
           --
         </div>
       </div>
 
-      <!-- RECOMMENDED DIFFICULTY ASSISTS BOX -->
+      <!-- DIFFICULTY & DRIVING ASSISTS -->
       <div class="assist-box">
-        <div class="assist-title">Required Difficulty & Driving Assists</div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+        <div class="assist-title">Recommended Driving Assists</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
           <div>Traction Control: <strong style="color:#fff;" id="astTC">OFF</strong></div>
           <div>ABS: <strong style="color:#fff;" id="astABS">ON</strong></div>
           <div>ESP: <strong style="color:#fff;" id="astESP">OFF</strong></div>
@@ -263,11 +312,11 @@
       </div>
     </div>
 
-    <!-- RIGHT: GRAND RACE META VEHICLES DIRECTORY -->
+    <!-- RIGHT: GRAND RACE META DIRECTORY -->
     <div class="card">
       <div class="card-title">
-        Grand Race Recommended Meta Cars
-        <span style="font-size:0.8rem; color: var(--text-muted);">Class Breakdown</span>
+        Grand Race Meta Cars
+        <span style="font-size:0.8rem; color: var(--text-muted);">Class Picks</span>
       </div>
 
       <div id="metaContainer" style="max-height: 650px; overflow-y: auto; padding-right: 4px;"></div>
@@ -298,7 +347,7 @@
 
         document.getElementById('proCarName').textContent = data.carName;
         document.getElementById('matchBadge').textContent = data.isExplicitMatch ? '[EXACT META MATCH]' : '[DYNAMIC DYNAMICS TUNE]';
-        document.getElementById('matchBadge').style.color = data.isExplicitMatch ? 'var(--accent-gold)' : 'var(--accent-cyan)';
+        document.getElementById('matchBadge').style.color = data.isExplicitMatch ? 'var(--mf-yellow)' : 'var(--mf-cyan)';
 
         document.getElementById('barArbFront').textContent = data.sliders.arbFront;
         document.getElementById('barArbRear').textContent = data.sliders.arbRear;
