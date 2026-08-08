@@ -82,6 +82,22 @@
       gap: 8px;
     }
 
+    .assist-box {
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 0.8rem;
+    }
+
+    .assist-title {
+      font-weight: bold;
+      color: var(--accent-cyan);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
     .slider-row {
       display: flex;
       justify-content: space-between;
@@ -161,7 +177,7 @@
   <header>
     <div>
       <h1>Motorfest Pro Lab</h1>
-      <div class="subtitle">Independent Pro Settings & Grand Race Meta Directory</div>
+      <div class="subtitle">Independent Pro Settings, Assists & Grand Race Meta Directory</div>
     </div>
     <div class="stat-badge">Grand Race Ready</div>
   </header>
@@ -234,6 +250,17 @@
           --
         </div>
       </div>
+
+      <!-- RECOMMENDED DIFFICULTY ASSISTS BOX -->
+      <div class="assist-box">
+        <div class="assist-title">Required Difficulty & Driving Assists</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+          <div>Traction Control: <strong style="color:#fff;" id="astTC">OFF</strong></div>
+          <div>ABS: <strong style="color:#fff;" id="astABS">ON</strong></div>
+          <div>ESP: <strong style="color:#fff;" id="astESP">OFF</strong></div>
+          <div>Transmission: <strong style="color:#fff;" id="astGear">Manual</strong></div>
+        </div>
+      </div>
     </div>
 
     <!-- RIGHT: GRAND RACE META VEHICLES DIRECTORY -->
@@ -283,6 +310,13 @@
         document.getElementById('barBrake').textContent = data.sliders.brakeBalance;
         document.getElementById('barGears').textContent = data.sliders.gearRatio;
         document.getElementById('barSteer').textContent = data.sliders.steeringSensitivity;
+
+        if (data.assists) {
+          document.getElementById('astTC').textContent = data.assists.tractionControl;
+          document.getElementById('astABS').textContent = data.assists.abs;
+          document.getElementById('astESP').textContent = data.assists.esp;
+          document.getElementById('astGear').textContent = data.assists.transmission;
+        }
 
         document.getElementById('proTips').textContent = `Physics Note: ${data.metaTips}`;
       }, 150);
