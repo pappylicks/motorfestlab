@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Motorfest Build Lab & Affix Optimizer</title>
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --panel: #181c24;
+      --border: #2a313d;
+      --accent: #ff0055;
+      --accent-gold: #ffb700;
+      --text: #f0f4f8;
+      --text-muted: #8c9ba5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--accent);
+      margin-bottom: 24px;
+    }
+
+    h1 { font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-gold); }
+    .subtitle { font-size: 0.85rem; color: var(--text-muted); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    input, select, textarea {
+      background: #101216;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--accent-gold); }
+
+    .affix-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 10px;
+      align-items: center;
+      background: rgba(0,0,0,0.2);
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .stat-badge {
+      background: rgba(255, 183, 0, 0.15);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      font-weight: bold;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+
+    .build-list { display: flex; flex-direction: column; gap: 12px; }
+    .build-item {
+      background: #11141a;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent-gold);
+      padding: 14px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .build-info h3 { font-size: 1rem; color: #fff; }
+    .build-info p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+    .build-stats { font-size: 0.8rem; color: var(--accent-gold); margin-top: 6px; }
+
+    .btn-delete {
+      background: transparent;
+      color: #ff4444;
+      border: 1px solid #ff4444;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-delete:hover { background: #ff4444; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Motorfest Build Lab</h1>
+      <div class="subtitle">Legend Parts, Affix Stacking & Vehicle Meta Management</div>
+    </div>
+    <div class="stat-badge">7-Part Golden Set Target</div>
+  </header>
+
+  <div class="grid">
+    
+    <!-- LEFT: BUILD OPTIMIZER FORM -->
+    <div class="card">
+      <div class="card-title">Configure Vehicle Setup</div>
+
+      <div class="form-group">
+        <label>Vehicle Name</label>
+        <input type="text" id="carName" placeholder="e.g. Porsche 911 GT3 RS" />
+      </div>
+
+      <div class="form-group">
+        <label>Category / Discipline</label>
+        <select id="category">
+          <option value="Street Tier 1">Street Tier 1</option>
+          <option value="Street Tier 2">Street Tier 2</option>
+          <option value="Hypercar">Hypercar</option>
+          <option value="Racing">Racing</option>
+          <option value="Rally Raid">Rally Raid</option>
+          <option value="Drift">Drift</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Golden Part Set Bonus</label>
+        <select id="legendSet"></select>
+      </div>
+
+      <div class="card-title" style="font-size: 0.95rem; margin-top: 8px;">Affix Allocations (Max 7 Parts)</div>
+
+      <div class="affix-row">
+        <div>
+          <strong style="font-size:0.85rem;">Pure</strong>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Nitro Power (+3.5%/part)</div>
+        </div>
+        <input type="number" id="affix_pure" min="0" max="7" value="7" onchange="calculateStats()" />
+        <div class="stat-badge" id="calc_pure">+24.5%</div>
+      </div>
+
+      <div class="affix-row">
+        <div>
+          <strong style="font-size:0.85rem;">Extra Pump</strong>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Nitro Refill (+5.0%/part)</div>
+        </div>
+        <input type="number" id="affix_extra_pump" min="0" max="7" value="7" onchange="calculateStats()" />
+        <div class="stat-badge" id="calc_extra_pump">+35.0%</div>
+      </div>
+
+      <div class="form-group">
+        <label>Pro To-Do & Tuning Notes</label>
+        <textarea id="notes" rows="2" placeholder="e.g. Pro Settings: Brake balance 48/52, Traction control OFF"></textarea>
+      </div>
+
+      <button onclick="saveBuild()">Save Vehicle Build</button>
+    </div>
+
+    <!-- RIGHT: SAVED BUILDS DASHBOARD -->
+    <div class="card">
+      <div class="card-title">
+        Saved Garage Builds
+        <span id="buildCount" style="font-size:0.85rem; color: var(--text-muted);">0 Saved</span>
+      </div>
+
+      <div class="build-list" id="buildsContainer"></div>
+    </div>
+
+  </div>
+
+  <script>
+    let metaData = { legendSets: [], affixes: [] };
+
+    async function init() {
+      const res = await fetch('/api/metadata');
+      metaData = await res.json();
+
+      const setSelect = document.getElementById('legendSet');
+      metaData.legendSets.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.name} (${s.multiplier})`;
+        setSelect.appendChild(opt);
+      });
+
+      calculateStats();
+      loadBuilds();
+    }
+
+    function calculateStats() {
+      const pureCount = parseInt(document.getElementById('affix_pure').value) || 0;
+      const pumpCount = parseInt(document.getElementById('affix_extra_pump').value) || 0;
+
+      document.getElementById('calc_pure').textContent = `+${(pureCount * 3.5).toFixed(1)}%`;
+      document.getElementById('calc_extra_pump').textContent = `+${(pumpCount * 5.0).toFixed(1)}%`;
+    }
+
+    async function loadBuilds() {
+      const res = await fetch('/api/builds');
+      const builds = await res.json();
+
+      const container = document.getElementById('buildsContainer');
+      document.getElementById('buildCount').textContent = `${builds.length} Saved`;
+      container.innerHTML = '';
+
+      builds.forEach(b => {
+        const setName = metaData.legendSets.find(s => s.id === b.legendSet)?.name || b.legendSet;
+        const purePct = ((b.affixes?.pure || 0) * 3.5).toFixed(1);
+        const pumpPct = ((b.affixes?.extra_pump || 0) * 5.0).toFixed(1);
+
+        const el = document.createElement('div');
+        el.className = 'build-item';
+        el.innerHTML = `
+          <div class="build-info">
+            <h3>${b.carName} <span style="font-size:0.75rem; color:var(--text-muted);">[${b.category}]</span></h3>
+            <p><strong>Set:</strong> ${setName}</p>
+            <div class="build-stats">Pure: +${purePct}% | Extra Pump: +${pumpPct}%</div>
+            ${b.notes ? `<p style="margin-top:4px; font-style:italic;">"${b.notes}"</p>` : ''}
+          </div>
+          <button class="btn-delete" onclick="deleteBuild(${b.id})">Delete</button>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    async function saveBuild() {
+      const carName = document.getElementById('carName').value;
+      const category = document.getElementById('category').value;
+      const legendSet = document.getElementById('legendSet').value;
+      const notes = document.getElementById('notes').value;
+
+      const pure = parseInt(document.getElementById('affix_pure').value) || 0;
+      const extra_pump = parseInt(document.getElementById('affix_extra_pump').value) || 0;
+
+      if (!carName) {
+        alert('Please enter a vehicle name.');
+        return;
+      }
+
+      await fetch('/api/builds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carName,
+          category,
+          legendSet,
+          affixes: { pure, extra_pump },
+          notes
+        })
+      });
+
+      document.getElementById('carName').value = '';
+      document.getElementById('notes').value = '';
+      loadBuilds();
+    }
+
+    async function deleteBuild(id) {
+      await fetch(`/api/builds/${id}`, { method: 'DELETE' });
+      loadBuilds();
+    }
+
+    init();
+  </script>
+</body>
+</html>
