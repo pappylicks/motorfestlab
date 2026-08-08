@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motorfest Build Lab - Independent Pro Settings</title>
+  <title>Motorfest Pro Settings & Grand Race Meta Lab</title>
   <style>
     :root {
       --bg: #0d0f12;
@@ -59,7 +59,7 @@
     .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
-    input, select, textarea {
+    input, select {
       background: #101216;
       border: 1px solid var(--border);
       color: var(--text);
@@ -69,43 +69,7 @@
       outline: none;
     }
 
-    input:focus, select:focus, textarea:focus { border-color: var(--accent-gold); }
-
-    .affix-row {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 10px;
-      align-items: center;
-      background: rgba(0,0,0,0.2);
-      padding: 8px;
-      border-radius: 4px;
-    }
-
-    .stat-badge {
-      background: rgba(255, 183, 0, 0.15);
-      border: 1px solid var(--accent-gold);
-      color: var(--accent-gold);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 0.85rem;
-      text-align: center;
-    }
-
-    button {
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
-      padding: 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: opacity 0.2s;
-    }
-
-    button:hover { opacity: 0.9; }
+    input:focus, select:focus { border-color: var(--accent-gold); }
 
     .pro-box {
       background: #11141a;
@@ -135,30 +99,60 @@
       font-size: 0.88rem;
     }
 
-    .build-list { display: flex; flex-direction: column; gap: 12px; }
-    .build-item {
+    /* Meta Directory Styles */
+    .meta-class-section {
       background: #11141a;
       border: 1px solid var(--border);
-      border-left: 4px solid var(--accent-gold);
-      padding: 14px;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
     }
 
-    .build-info h3 { font-size: 1rem; color: #fff; }
-    .build-info p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
-    .build-stats { font-size: 0.8rem; color: var(--accent-gold); margin-top: 6px; }
+    .meta-class-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
 
-    .btn-delete {
-      background: transparent;
-      color: #ff4444;
-      border: 1px solid #ff4444;
-      padding: 4px 8px;
-      font-size: 0.75rem;
+    .car-meta-card {
+      background: rgba(0,0,0,0.25);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 8px 10px;
       border-radius: 4px;
-      cursor: pointer;
+      margin-bottom: 6px;
+    }
+
+    .car-meta-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .car-meta-type {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .car-meta-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .stat-badge {
+      background: rgba(255, 183, 0, 0.15);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      text-align: center;
     }
   </style>
 </head>
@@ -166,21 +160,21 @@
 
   <header>
     <div>
-      <h1>Motorfest Build Lab</h1>
-      <div class="subtitle">Independent Vehicle Dynamics Engine & Pro Settings</div>
+      <h1>Motorfest Pro Lab</h1>
+      <div class="subtitle">Independent Pro Settings & Grand Race Meta Directory</div>
     </div>
-    <div class="stat-badge">Per-Vehicle Tuning Engine</div>
+    <div class="stat-badge">Grand Race Ready</div>
   </header>
 
   <div class="grid">
     
-    <!-- LEFT: INDEPENDENT CAR CONFIG -->
+    <!-- LEFT: INDEPENDENT PRO SETTINGS CALCULATOR -->
     <div class="card">
-      <div class="card-title">Vehicle Properties</div>
+      <div class="card-title">Pro Settings Configurator</div>
 
       <div class="form-group">
         <label>Vehicle Name</label>
-        <input type="text" id="carName" value="Gordon Murray Automotive T.50" placeholder="Type any car name..." oninput="fetchProSettings()" />
+        <input type="text" id="carName" value="Gordon Murray Automotive T.50" placeholder="Type any vehicle name..." oninput="fetchProSettings()" />
       </div>
 
       <div class="form-grid-3">
@@ -209,12 +203,14 @@
             <option value="Street Tier 2">Street Tier 2</option>
             <option value="Street Tier 1">Street Tier 1</option>
             <option value="Racing">Racing</option>
+            <option value="Alpha GP">Alpha GP</option>
             <option value="Drift">Drift</option>
+            <option value="Rally / Rally Raid">Rally / Raid</option>
           </select>
         </div>
       </div>
 
-      <!-- CALCULATED SLIDER BARS -->
+      <!-- IN-GAME SLIDER BARS -->
       <div class="pro-box">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span id="proCarName" style="font-weight:bold; color:var(--accent-gold);">Gordon Murray Automotive T.50</span>
@@ -238,71 +234,26 @@
           --
         </div>
       </div>
-
-      <div class="form-group">
-        <label>Golden Part Set Bonus</label>
-        <select id="legendSet"></select>
-      </div>
-
-      <div class="card-title" style="font-size: 0.95rem; margin-top: 8px;">Affix Allocations (Max 7 Parts)</div>
-
-      <div class="affix-row">
-        <div>
-          <strong style="font-size:0.85rem;">Pure</strong>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Nitro Power (+3.5%/part)</div>
-        </div>
-        <input type="number" id="affix_pure" min="0" max="7" value="7" onchange="calculateStats()" />
-        <div class="stat-badge" id="calc_pure">+24.5%</div>
-      </div>
-
-      <div class="affix-row">
-        <div>
-          <strong style="font-size:0.85rem;">Extra Pump</strong>
-          <div style="font-size:0.75rem; color:var(--text-muted);">Nitro Refill (+5.0%/part)</div>
-        </div>
-        <input type="number" id="affix_extra_pump" min="0" max="7" value="7" onchange="calculateStats()" />
-        <div class="stat-badge" id="calc_extra_pump">+35.0%</div>
-      </div>
-
-      <div class="form-group">
-        <label>Garage Notes</label>
-        <textarea id="notes" rows="2" placeholder="e.g. Front ARB set to +10%, Rear ARB -10%"></textarea>
-      </div>
-
-      <button onclick="saveBuild()">Save Vehicle Build</button>
     </div>
 
-    <!-- RIGHT: SAVED BUILDS DASHBOARD -->
+    <!-- RIGHT: GRAND RACE META VEHICLES DIRECTORY -->
     <div class="card">
       <div class="card-title">
-        Saved Garage Builds
-        <span id="buildCount" style="font-size:0.85rem; color: var(--text-muted);">0 Saved</span>
+        Grand Race Recommended Meta Cars
+        <span style="font-size:0.8rem; color: var(--text-muted);">Class Breakdown</span>
       </div>
 
-      <div class="build-list" id="buildsContainer"></div>
+      <div id="metaContainer" style="max-height: 650px; overflow-y: auto; padding-right: 4px;"></div>
     </div>
 
   </div>
 
   <script>
-    let metaData = { legendSets: [], affixes: [] };
     let debounceTimer;
 
     async function init() {
-      const res = await fetch('/api/metadata');
-      metaData = await res.json();
-
-      const setSelect = document.getElementById('legendSet');
-      metaData.legendSets.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = `${s.name} (${s.multiplier})`;
-        setSelect.appendChild(opt);
-      });
-
-      calculateStats();
-      loadBuilds();
       fetchProSettings();
+      loadMetaDirectory();
     }
 
     async function fetchProSettings() {
@@ -337,75 +288,32 @@
       }, 150);
     }
 
-    function calculateStats() {
-      const pureCount = parseInt(document.getElementById('affix_pure').value) || 0;
-      const pumpCount = parseInt(document.getElementById('affix_extra_pump').value) || 0;
-
-      document.getElementById('calc_pure').textContent = `+${(pureCount * 3.5).toFixed(1)}%`;
-      document.getElementById('calc_extra_pump').textContent = `+${(pumpCount * 5.0).toFixed(1)}%`;
-    }
-
-    async function loadBuilds() {
-      const res = await fetch('/api/builds');
-      const builds = await res.json();
-
-      const container = document.getElementById('buildsContainer');
-      document.getElementById('buildCount').textContent = `${builds.length} Saved`;
+    async function loadMetaDirectory() {
+      const res = await fetch('/api/grand-race-meta');
+      const metaDb = await res.json();
+      const container = document.getElementById('metaContainer');
       container.innerHTML = '';
 
-      builds.forEach(b => {
-        const setName = metaData.legendSets.find(s => s.id === b.legendSet)?.name || b.legendSet;
-        const purePct = ((b.affixes?.pure || 0) * 3.5).toFixed(1);
-        const pumpPct = ((b.affixes?.extra_pump || 0) * 5.0).toFixed(1);
+      for (const [className, cars] of Object.entries(metaDb)) {
+        const section = document.createElement('div');
+        section.className = 'meta-class-section';
 
-        const el = document.createElement('div');
-        el.className = 'build-item';
-        el.innerHTML = `
-          <div class="build-info">
-            <h3>${b.carName} <span style="font-size:0.75rem; color:var(--text-muted);">[${b.category}]</span></h3>
-            <p><strong>Set:</strong> ${setName}</p>
-            <div class="build-stats">Pure: +${purePct}% | Extra Pump: +${pumpPct}%</div>
-            ${b.notes ? `<p style="margin-top:4px; font-style:italic;">"${b.notes}"</p>` : ''}
+        let carListHtml = cars.map(c => `
+          <div class="car-meta-card">
+            <div class="car-meta-header">
+              <span>${c.name}</span>
+              <span class="car-meta-type">${c.type}</span>
+            </div>
+            <div class="car-meta-desc">${c.description}</div>
           </div>
-          <button class="btn-delete" onclick="deleteBuild(${b.id})">Delete</button>
+        `).join('');
+
+        section.innerHTML = `
+          <div class="meta-class-title">${className}</div>
+          ${carListHtml}
         `;
-        container.appendChild(el);
-      });
-    }
-
-    async function saveBuild() {
-      const carName = document.getElementById('carName').value;
-      const category = document.getElementById('category').value;
-      const legendSet = document.getElementById('legendSet').value;
-      const notes = document.getElementById('notes').value;
-
-      const pure = parseInt(document.getElementById('affix_pure').value) || 0;
-      const extra_pump = parseInt(document.getElementById('affix_extra_pump').value) || 0;
-
-      if (!carName) {
-        alert('Please enter a vehicle name.');
-        return;
+        container.appendChild(section);
       }
-
-      await fetch('/api/builds', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          carName,
-          category,
-          legendSet,
-          affixes: { pure, extra_pump },
-          notes
-        })
-      });
-
-      document.getElementById('notes').value = '';
-      loadBuilds();
-    }
-
-    async function deleteBuild(id) {
-      await fetch(`/api/builds/${id}`, { method: 'DELETE' });
-      loadBuilds();
     }
 
     init();
