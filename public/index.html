@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motorfest Build Lab & Slider Pro Settings</title>
+  <title>Motorfest Build Lab - Independent Pro Settings</title>
   <style>
     :root {
       --bg: #0d0f12;
@@ -56,7 +56,8 @@
     }
 
     .form-group { display: flex; flex-direction: column; gap: 6px; }
-    label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
     input, select, textarea {
       background: #101216;
@@ -64,7 +65,7 @@
       color: var(--text);
       padding: 10px;
       border-radius: 4px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       outline: none;
     }
 
@@ -106,7 +107,6 @@
 
     button:hover { opacity: 0.9; }
 
-    /* Slider Bar Specific Styles */
     .pro-box {
       background: #11141a;
       border: 1px solid #333d4d;
@@ -115,7 +115,7 @@
       border-radius: 6px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .slider-row {
@@ -123,7 +123,7 @@
       justify-content: space-between;
       align-items: center;
       font-size: 0.82rem;
-      padding: 4px 0;
+      padding: 3px 0;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
@@ -160,7 +160,6 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .btn-delete:hover { background: #ff4444; color: #fff; }
   </style>
 </head>
 <body>
@@ -168,55 +167,71 @@
   <header>
     <div>
       <h1>Motorfest Build Lab</h1>
-      <div class="subtitle">Exact Percentage Slider Bars & Pro Settings</div>
+      <div class="subtitle">Independent Vehicle Dynamics Engine & Pro Settings</div>
     </div>
-    <div class="stat-badge">In-Game Slider Matcher</div>
+    <div class="stat-badge">Per-Vehicle Tuning Engine</div>
   </header>
 
   <div class="grid">
     
-    <!-- LEFT: BUILD OPTIMIZER & SLIDER BARS -->
+    <!-- LEFT: INDEPENDENT CAR CONFIG -->
     <div class="card">
-      <div class="card-title">Configure Vehicle Setup</div>
+      <div class="card-title">Vehicle Properties</div>
 
       <div class="form-group">
         <label>Vehicle Name</label>
-        <input type="text" id="carName" placeholder="e.g. Gordon Murray Automotive T.50" oninput="fetchProSettings()" />
+        <input type="text" id="carName" value="Gordon Murray Automotive T.50" placeholder="Type any car name..." oninput="fetchProSettings()" />
       </div>
 
-      <div class="form-group">
-        <label>Category / Discipline</label>
-        <select id="category" onchange="fetchProSettings()">
-          <option value="Hypercar">Hypercar</option>
-          <option value="Street Tier 2">Street Tier 2</option>
-          <option value="Street Tier 1">Street Tier 1</option>
-          <option value="Racing">Racing</option>
-          <option value="Drift">Drift</option>
-          <option value="Alpha GP">Alpha GP</option>
-          <option value="Rally Raid">Rally Raid / Off-Road</option>
-        </select>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label>Drivetrain</label>
+          <select id="drivetrain" onchange="fetchProSettings()">
+            <option value="RWD">RWD</option>
+            <option value="AWD">AWD</option>
+            <option value="FWD">FWD</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Engine Layout</label>
+          <select id="engineLayout" onchange="fetchProSettings()">
+            <option value="Mid-Engine">Mid-Engine</option>
+            <option value="Front-Engine">Front-Engine</option>
+            <option value="Rear-Engine">Rear-Engine</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Discipline</label>
+          <select id="category" onchange="fetchProSettings()">
+            <option value="Hypercar">Hypercar</option>
+            <option value="Street Tier 2">Street Tier 2</option>
+            <option value="Street Tier 1">Street Tier 1</option>
+            <option value="Racing">Racing</option>
+            <option value="Drift">Drift</option>
+          </select>
+        </div>
       </div>
 
-      <!-- IN-GAME PRO SETTINGS SLIDERS CARD -->
+      <!-- CALCULATED SLIDER BARS -->
       <div class="pro-box">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span id="proCarName" style="font-weight:bold; color:var(--accent-gold);">Gordon Murray Automotive T.50</span>
-          <span style="font-size:0.75rem; color:var(--accent-cyan);">[SLIDER CONFIG]</span>
+          <span id="matchBadge" style="font-size:0.75rem; color:var(--accent-cyan);">[CALCULATED TUNE]</span>
         </div>
-        <div style="font-size:0.8rem; color:var(--text-muted);" id="proStyle">Grand Race Hypercar V-Max Setup</div>
         
         <div style="display:flex; flex-direction:column; gap:2px; margin-top:4px;">
-          <div class="slider-row"><span>Front Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbFront">+10%</div></div>
-          <div class="slider-row"><span>Rear Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbRear">-10%</div></div>
-          <div class="slider-row"><span>Front Springs:</span> <div class="slider-val" id="barSpringFront">+15%</div></div>
-          <div class="slider-row"><span>Rear Springs:</span> <div class="slider-val" id="barSpringRear">0%</div></div>
-          <div class="slider-row"><span>Front Dampers:</span> <div class="slider-val" id="barDamperFront">+10%</div></div>
-          <div class="slider-row"><span>Rear Dampers:</span> <div class="slider-val" id="barDamperRear">-5%</div></div>
-          <div class="slider-row"><span>Aero Downforce:</span> <div class="slider-val" id="barAero">-15% (-3 notches)</div></div>
-          <div class="slider-row"><span>Brake Balance:</span> <div class="slider-val" id="barBrake">48% Front / 52% Rear</div></div>
-          <div class="slider-row"><span>Gear Ratio:</span> <div class="slider-val" id="barGears">+10% (Speed)</div></div>
-          <div class="slider-row"><span>Steering Sensitivity:</span> <div class="slider-val" id="barSteer">+3 notches</div></div>
-          <div class="slider-row"><span>Traction Control:</span> <div class="slider-val" id="barTC">OFF</div></div>
+          <div class="slider-row"><span>Front Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbFront">--</div></div>
+          <div class="slider-row"><span>Rear Anti-Roll Bar (ARB):</span> <div class="slider-val" id="barArbRear">--</div></div>
+          <div class="slider-row"><span>Front Springs:</span> <div class="slider-val" id="barSpringFront">--</div></div>
+          <div class="slider-row"><span>Rear Springs:</span> <div class="slider-val" id="barSpringRear">--</div></div>
+          <div class="slider-row"><span>Front Dampers:</span> <div class="slider-val" id="barDamperFront">--</div></div>
+          <div class="slider-row"><span>Rear Dampers:</span> <div class="slider-val" id="barDamperRear">--</div></div>
+          <div class="slider-row"><span>Aero Downforce:</span> <div class="slider-val" id="barAero">--</div></div>
+          <div class="slider-row"><span>Brake Balance:</span> <div class="slider-val" id="barBrake">--</div></div>
+          <div class="slider-row"><span>Gear Ratio:</span> <div class="slider-val" id="barGears">--</div></div>
+          <div class="slider-row"><span>Steering Sensitivity:</span> <div class="slider-val" id="barSteer">--</div></div>
         </div>
 
         <div style="font-size:0.78rem; color: var(--accent-gold); margin-top: 4px; border-top:1px dashed #222; padding-top:6px;" id="proTips">
@@ -250,8 +265,8 @@
       </div>
 
       <div class="form-group">
-        <label>Personal Garage Notes</label>
-        <textarea id="notes" rows="2" placeholder="e.g. Set ARB Front +10% and Rear -10% for Grand Race stability"></textarea>
+        <label>Garage Notes</label>
+        <textarea id="notes" rows="2" placeholder="e.g. Front ARB set to +10%, Rear ARB -10%"></textarea>
       </div>
 
       <button onclick="saveBuild()">Save Vehicle Build</button>
@@ -287,23 +302,25 @@
 
       calculateStats();
       loadBuilds();
-
-      document.getElementById('carName').value = 'Gordon Murray Automotive T.50';
       fetchProSettings();
     }
 
     async function fetchProSettings() {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
-        const car = document.getElementById('carName').value || 'Gordon Murray Automotive T.50';
+        const car = document.getElementById('carName').value || 'Selected Vehicle';
+        const drivetrain = document.getElementById('drivetrain').value;
+        const engineLayout = document.getElementById('engineLayout').value;
         const category = document.getElementById('category').value;
 
-        const res = await fetch(`/api/pro-settings?car=${encodeURIComponent(car)}&category=${encodeURIComponent(category)}`);
+        const url = `/api/pro-settings?car=${encodeURIComponent(car)}&drivetrain=${encodeURIComponent(drivetrain)}&engineLayout=${encodeURIComponent(engineLayout)}&category=${encodeURIComponent(category)}`;
+        const res = await fetch(url);
         const json = await res.json();
         const data = json.data;
 
         document.getElementById('proCarName').textContent = data.carName;
-        document.getElementById('proStyle').textContent = data.racingStyle;
+        document.getElementById('matchBadge').textContent = data.isExplicitMatch ? '[EXACT META MATCH]' : '[DYNAMIC DYNAMICS TUNE]';
+        document.getElementById('matchBadge').style.color = data.isExplicitMatch ? 'var(--accent-gold)' : 'var(--accent-cyan)';
 
         document.getElementById('barArbFront').textContent = data.sliders.arbFront;
         document.getElementById('barArbRear').textContent = data.sliders.arbRear;
@@ -315,10 +332,9 @@
         document.getElementById('barBrake').textContent = data.sliders.brakeBalance;
         document.getElementById('barGears').textContent = data.sliders.gearRatio;
         document.getElementById('barSteer').textContent = data.sliders.steeringSensitivity;
-        document.getElementById('barTC').textContent = data.sliders.tractionControl;
 
-        document.getElementById('proTips').textContent = `Pro Tip: ${data.metaTips}`;
-      }, 200);
+        document.getElementById('proTips').textContent = `Physics Note: ${data.metaTips}`;
+      }, 150);
     }
 
     function calculateStats() {
