@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Motorfest Build Lab & Affix Optimizer</title>
+  <title>Motorfest Build Lab & Universal Pro Settings</title>
   <style>
     :root {
       --bg: #0d0f12;
@@ -51,6 +51,7 @@
       padding-bottom: 10px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
     .form-group { display: flex; flex-direction: column; gap: 6px; }
@@ -104,6 +105,43 @@
 
     button:hover { opacity: 0.9; }
 
+    /* Universal Pro Settings Card Box */
+    .pro-box {
+      background: #11141a;
+      border: 1px solid #333d4d;
+      border-left: 4px solid var(--accent);
+      padding: 14px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pro-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: var(--accent-gold);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .pro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .pro-item span {
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .pro-item strong {
+      color: var(--text);
+    }
+
     .build-list { display: flex; flex-direction: column; gap: 12px; }
     .build-item {
       background: #11141a;
@@ -137,32 +175,57 @@
   <header>
     <div>
       <h1>Motorfest Build Lab</h1>
-      <div class="subtitle">Legend Parts, Affix Stacking & Vehicle Meta Management</div>
+      <div class="subtitle">Universal Vehicle Meta & Pro Settings Engine</div>
     </div>
-    <div class="stat-badge">7-Part Golden Set Target</div>
+    <div class="stat-badge">All Vehicles Supported</div>
   </header>
 
   <div class="grid">
     
-    <!-- LEFT: BUILD OPTIMIZER FORM -->
+    <!-- LEFT: BUILD OPTIMIZER & UNIVERSAL PRO SETTINGS -->
     <div class="card">
       <div class="card-title">Configure Vehicle Setup</div>
 
       <div class="form-group">
-        <label>Vehicle Name</label>
-        <input type="text" id="carName" placeholder="e.g. Porsche 911 GT3 RS" />
+        <label>Vehicle Name (Any Car / Bike / Spec)</label>
+        <input type="text" id="carName" placeholder="Type any car (e.g. Porsche 911 GT3 RS, Koenigsegg Jesko, Supra...)" oninput="fetchProSettings()" />
       </div>
 
       <div class="form-group">
         <label>Category / Discipline</label>
-        <select id="category">
-          <option value="Street Tier 1">Street Tier 1</option>
-          <option value="Street Tier 2">Street Tier 2</option>
+        <select id="category" onchange="fetchProSettings()">
           <option value="Hypercar">Hypercar</option>
+          <option value="Street Tier 2">Street Tier 2</option>
+          <option value="Street Tier 1">Street Tier 1</option>
           <option value="Racing">Racing</option>
-          <option value="Rally Raid">Rally Raid</option>
           <option value="Drift">Drift</option>
+          <option value="Alpha GP">Alpha GP</option>
+          <option value="Rally Raid">Rally Raid / Off-Road</option>
+          <option value="Rally">Rally</option>
+          <option value="Dragster">Dragster</option>
         </select>
+      </div>
+
+      <!-- UNIVERSAL PRO SETTINGS CARD -->
+      <div class="pro-box">
+        <div class="pro-title">
+          <span id="proCarName">Selected Vehicle</span>
+          <span id="proBadge" style="font-size:0.75rem; color: var(--accent-gold);">[META VERIFIED]</span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-muted);" id="proStyle">Grand Race Performance Setup</div>
+        
+        <div class="pro-grid">
+          <div class="pro-item"><span>Brake Balance:</span> <strong id="proBrake">--</strong></div>
+          <div class="pro-item"><span>Traction Control:</span> <strong id="proTC">--</strong></div>
+          <div class="pro-item"><span>Aero Downforce:</span> <strong id="proAero">--</strong></div>
+          <div class="pro-item"><span>Gear Ratio:</span> <strong id="proGears">--</strong></div>
+          <div class="pro-item"><span>Anti-Roll Bars:</span> <strong id="proARB">--</strong></div>
+          <div class="pro-item"><span>Steering Sensitivity:</span> <strong id="proSteer">--</strong></div>
+        </div>
+
+        <div style="font-size:0.78rem; color: var(--accent-gold); margin-top: 6px; border-top:1px dashed #222; padding-top:6px;" id="proTips">
+          --
+        </div>
       </div>
 
       <div class="form-group">
@@ -191,8 +254,8 @@
       </div>
 
       <div class="form-group">
-        <label>Pro To-Do & Tuning Notes</label>
-        <textarea id="notes" rows="2" placeholder="e.g. Pro Settings: Brake balance 48/52, Traction control OFF"></textarea>
+        <label>Personal Garage Notes</label>
+        <textarea id="notes" rows="2" placeholder="e.g. Excellent rotation through hairpins; top speed 420 km/h in slipstream"></textarea>
       </div>
 
       <button onclick="saveBuild()">Save Vehicle Build</button>
@@ -212,6 +275,7 @@
 
   <script>
     let metaData = { legendSets: [], affixes: [] };
+    let debounceTimer;
 
     async function init() {
       const res = await fetch('/api/metadata');
@@ -227,6 +291,36 @@
 
       calculateStats();
       loadBuilds();
+      
+      // Default car setup on page load
+      document.getElementById('carName').value = 'Porsche 911 GT3 RS';
+      fetchProSettings();
+    }
+
+    async function fetchProSettings() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        const car = document.getElementById('carName').value || 'Selected Vehicle';
+        const category = document.getElementById('category').value;
+
+        const res = await fetch(`/api/pro-settings?car=${encodeURIComponent(car)}&category=${encodeURIComponent(category)}`);
+        const json = await res.json();
+        const data = json.data;
+
+        document.getElementById('proCarName').textContent = data.carName;
+        document.getElementById('proBadge').textContent = json.foundExact ? '[EXACT META MATCH]' : '[DYNAMIC CLASS META]';
+        document.getElementById('proBadge').style.color = json.foundExact ? 'var(--accent-gold)' : '#00f0ff';
+        document.getElementById('proStyle').textContent = data.racingStyle;
+
+        document.getElementById('proBrake').textContent = data.settings.brakeBalance;
+        document.getElementById('proTC').textContent = data.settings.tractionControl;
+        document.getElementById('proAero').textContent = data.settings.aeroDownforce;
+        document.getElementById('proGears').textContent = data.settings.gearRatio;
+        document.getElementById('proARB').textContent = data.settings.arbFrontRear;
+        document.getElementById('proSteer').textContent = data.settings.steeringSensitivity;
+
+        document.getElementById('proTips').textContent = `Pro Tip: ${data.metaTips}`;
+      }, 200);
     }
 
     function calculateStats() {
@@ -291,7 +385,6 @@
         })
       });
 
-      document.getElementById('carName').value = '';
       document.getElementById('notes').value = '';
       loadBuilds();
     }
